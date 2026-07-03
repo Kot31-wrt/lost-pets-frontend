@@ -681,19 +681,20 @@ export default function App() {
 
       </Container>
 
-      {/* --- МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
+      {/* --- КРАСИВОЕ СОВРЕМЕННОЕ МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
       {activeModalPet && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }} tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div className="modal-content border-0 shadow-lg">
+            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               
-              <div className="modal-header border-0 px-4 pt-4 pb-0">
+              {/* Шапка модалки */}
+              <div className="modal-header border-0 px-4 pt-4 pb-0 bg-white">
                 <h4 className="modal-title fw-bold text-dark">🐾 Анкета питомца: {activeModalPet.name}</h4>
-                {/* ИСПРАВЛЕНО: Заменили имя на верное без "d" на конце */}
                 <button type="button" className="btn-close" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }} aria-label="Close"></button>
               </div>
               
-              <div className="modal-body p-4">
+              {/* Тело модалки */}
+              <div className="modal-body p-4 bg-white">
                 <div className="row g-4">
                   {/* Левая колонка: Изображение */}
                   <div className="col-md-6">
@@ -706,24 +707,33 @@ export default function App() {
                     )}
                   </div>
                   
-                  {/* Правая колонка: Описание */}
+                  {/* Правая колонка: Описание и плашки */}
                   <div className="col-md-6 d-flex flex-column justify-content-between">
                     <div>
-                      <span className={`badge mb-2 px-3 py-2 fs-6 pet-badge-${activeModalPet.status}`}>
-                        {activeModalPet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
-                      </span>
+                      {/* СТАТУС-ПЛАШКА (С чёткими стилями Bootstrap во избежание слияния) */}
+                      <div className="mb-3">
+                        {activeModalPet.status === 'потерялся' ? (
+                          <span className="badge bg-danger text-white px-3 py-2 fs-6 shadow-sm rounded-3">
+                            💔 Потерялся
+                          </span>
+                        ) : (
+                          <span className="badge bg-success text-white px-3 py-2 fs-6 shadow-sm rounded-3">
+                            💚 Найден
+                          </span>
+                        )}
+                      </div>
 
+                      {/* Live-предупреждение времени */}
                       {activeModalPet.status === 'потерялся' && (
-                        <div className="time-alert-box mt-2">
+                        <div className="time-alert-box mb-3">
                           {activeModalPet.createdAt && ((new Date().getTime() - new Date(activeModalPet.createdAt).getTime()) / (1000 * 60 * 60)) <= 24 ? (
-                            <div className="status-fresh">
-                              {/* ИСПРАВЛЕНО: Убрана опечатка и референс-баг */}
-                              <span className={isPulseActive ? "pulse-dot" : "static-dot"}></span>
-                              <span>Активный поиск: питомец потерян недавно, радиус на карте актуален (1 км)</span>
+                            <div className="alert alert-danger py-2 px-3 border-0 rounded-3 small m-0 d-flex align-items-center gap-2">
+                              <span className={isPulseActive ? "pulse-dot" : "static-dot"} style={{ width: '8px', height: '8px', backgroundColor: '#dc3545', borderRadius: '50%', display: 'inline-block' }}></span>
+                              <span>Активный поиск: питомец потерян недавно! Зона поиска в радиусе 1 км актуальна.</span>
                             </div>
                           ) : (
-                            <div className="status-old">
-                              <span>⚠️ Внимание: прошло более 24 часов. Зона поиска расширена, питомец мог переместиться.</span>
+                            <div className="alert alert-warning py-2 px-3 border-0 rounded-3 small m-0">
+                              ⚠️ Внимание: прошло более 24 часов. Зона поиска расширена, питомец мог переместиться.
                             </div>
                           )}
                         </div>
@@ -741,7 +751,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* СТИЛЬНЫЙ КЛИКАБЕЛЬНЫЙ БЛОК СВЯЗИ С АВТОРOМ ОБЪЯВЛЕНИЯ */}
+                {/* СТИЛЬНЫЙ КЛИКАБЕЛЬНЫЙ БЛОК СВЯЗИ С АВТОРОМ (Вынесен из row, чтобы не ломать верстку) */}
                 <div 
                   className="p-3 rounded-4 border border-light shadow-sm mt-4"
                   style={{ 
@@ -777,13 +787,13 @@ export default function App() {
                   </p>
                   
                   <div className="d-flex gap-2">
-                    <button 
-                      type="button"
+                    <a 
+                      href="tel:+79991112233" 
                       className="btn btn-success btn-sm fw-bold w-50 py-2"
-                      onClick={(e) => { e.stopPropagation(); alert('Контакты доступны в полном профиле'); }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       📞 Позвонить
-                    </button>
+                    </a>
                     <button 
                       type="button"
                       className="btn btn-primary btn-sm fw-bold w-50 py-2"
@@ -799,16 +809,17 @@ export default function App() {
 
               </div>
               
-              <div className="modal-footer bg-light border-0 p-3 rounded-bottom-4">
-                {/* ИСПРАВЛЕНО: Добавлен сброс стейта при закрытии в футере модалки */}
-                <button type="button" className="btn btn-secondary btn-sm px-4" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }}>Закрыть</button>
+              {/* Футер модалки */}
+              <div className="modal-footer bg-light border-0 p-3">
+                <button type="button" className="btn btn-secondary btn-sm px-4 rounded-3" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }}>
+                  Закрыть
+                </button>
               </div>
 
             </div>
           </div>
         </div>
       )}
-      
     </div>
   );
 }
