@@ -653,19 +653,7 @@ export default function App() {
                       {ownerAds.map(ad => (
                         <div className="col" key={ad._id}>
                           <div className="card h-100 border-light shadow-sm position-relative overflow-hidden" style={{ borderRadius: '12px' }}>
-                            
-                            {/* ИСПРАВЛЕННЫЙ BADGE С ЖЕСТКИМ КОНТРАСТОМ */}
-                            <span 
-                              className="position-absolute top-0 end-0 m-3 fw-bold text-white shadow-sm"
-                              style={{
-                                backgroundColor: ad.status === 'потерялся' ? '#dc3545' : '#198754',
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                fontSize: '12px',
-                                zIndex: 10,
-                                letterSpacing: '0.5px'
-                              }}
-                            >
+                            <span className={`pet-status-badge ${ad.status === 'потерялся' ? 'lost' : 'found'}`}>
                               {ad.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
                             </span>
 
