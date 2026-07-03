@@ -301,33 +301,30 @@ body {
   color: #34c759 !important;
 }
 
-/* базовый контейнер для кастомного маркера-аватарки */
+/* контейнер для маркера-аватарки */
 .custom-pet-marker {
-  background: none;
-  border: none;
-  display: flex;
+  background: none !important;
+  border: none !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
 }
 
 /* круглая обертка для фотографии питомца */
 .pet-marker-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-  background-color: #e5e7eb; /* серый фон, пока фотка грузится */
-  
-  /* используем CSS-переменные, которые передадим из реакта */
-  border: 3px solid var(--marker-color, #6b7280);
-  box-shadow: 0 0 10px var(--shadow-color, rgba(0, 0, 0, 0.2)), 0 4px 8px rgba(0, 0, 0, 0.25);
-  
-  transition: transform 0.2s ease-in-out;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-color: #e5e7eb;
+  border: 3px solid var(--marker-color, #6b7280) !important;
+  box-shadow: 0 0 10px var(--shadow-color, rgba(0, 0, 0, 0.2)), 0 4px 8px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.2s ease-in-out !important;
 }
 
-/* эффект плавного увеличения при наведении на аватарку */
+/* эффект увеличения при наведении */
 .pet-marker-avatar:hover {
-  transform: scale(1.15);
-  z-index: 999;
+  transform: scale(1.15) !important;
+  z-index: 999 !important;
 }

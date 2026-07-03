@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar, Container, Nav, Form, Button, Alert } from 'react-bootstrap'; 
 import './index.css'; // Подключаем наши современные кастомные стили
 
@@ -9,13 +9,13 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
+//let DefaultIcon = L.icon({
+//    iconUrl: icon,
+//    shadowUrl: iconShadow,
+//    iconSize: [25, 41],
+//    iconAnchor: [12, 41]
+//});
+
 
 // Компонент, который слушает клики по карте и передает координаты в форму
 function MapClickHandler({ setLat, setLng }) {
@@ -414,33 +414,81 @@ export default function App() {
                 {selectedPetCoords && <ChangeMapCenter center={selectedPetCoords} />}
                 
                 {filteredPets.map(pet => {
+                  if (!pet.lat || !pet.lng) return null;
+
                   const createdTime = pet.createdAt ? new Date(pet.createdAt).getTime() : new Date().getTime(); 
                   const currentTime = new Date().getTime();
                   const hoursPassed = (currentTime - createdTime) / (1000 * 60 * 60);
                   const isFreshLoss = hoursPassed <= 24; 
 
+                  // заглушка, если у питомца нет фотографии (красивая иконка лапки)
+                  const petImageUrl = pet.image || 'https://img.icons8.com/ios-filled/50/737373/paw.png';
+                  
+                  // настраиваем динамические цвета для css-переменных
+                  const borderColor = pet.status === 'потерялся' ? '#ff3b30' : '#34c759';
+                  const shadowColor = pet.status === 'потерялся' ? 'rgba(255, 59, 48, 0.6)' : 'rgba(52, 199, 89, 0.6)';
+
+                  // генерируем html-иконку, передавая цвета через стили
+                  const customIcon = L.divIcon({
+                    className: 'custom-pet-marker',
+                    html: `
+                      <div 
+                        class="pet-marker-avatar" 
+                        style="background-image: url('${petImageUrl}'); --marker-color: ${borderColor}; --shadow-color: ${shadowColor};"
+                      ></div>
+                    `,
+                    iconSize: [42, 42],
+                    iconAnchor: [21, 21],
+                    popupAnchor: [0, -24]
+                  });
+
                   return (
-                    <div key={pet._id}>
-                      <Marker position={[pet.lat, pet.lng]}>
+                    <React.Fragment key={pet._id}>
+                      {/* маркер с кастомной аватаркой */}
+                      <Marker position={[pet.lat, pet.lng]} icon={customIcon}>
                         <Popup>
                           <div className="p-1" style={{ maxWidth: '200px' }}>
-                            <h6 className="fw-bold mb-1">{pet.status === 'потерялся' ? '💔' : '💚'} {pet.name}</h6>
+                            <h6 className="fw-bold mb-1" style={{ color: pet.status === 'потерялся' ? '#dc3545' : '#198754' }}>
+                              {pet.status === 'потерялся' ? '💔' : '💚'} {pet.name}
+                            </h6>
                             <p className="text-muted small mb-2"><b>Порода:</b> {pet.breed}</p>
                             {pet.image && (
                               <img src={pet.image} alt={pet.name} className="img-fluid rounded border mb-2" style={{ maxHeight: '100px', width: '100%', objectFit: 'cover' }} />
                             )}
                             
                             {pet.status === 'потерялся' && (
-                              <div className="alert py-1 px-2 m-0 border-0 text-center fw-medium" style={{ fontSize: '0.75rem', backgroundColor: isFreshLoss ? '#FFF1F2' : '#FEF3C7', color: isFreshLoss ? '#BE123C' : '#B45309' }}>
+                              <div className="alert py-1 px-2 mb-2 border-0 text-center fw-medium" style={{ fontSize: '0.75rem', backgroundColor: isFreshLoss ? '#FFF1F2' : '#FEF3C7', color: isFreshLoss ? '#BE123C' : '#B45309' }}>
                                 {isFreshLoss 
                                   ? '⏳ Потерян недавно! Зона поиска в радиусе 1 км.' 
                                   : '⚠️ Прошло более 24 часов. Мог уйти дальше.'}
                               </div>
                             )}
+
+                            {/* кнопка подробнее с функцией загрузки имени автора объявления */}
+                            <button 
+                              className="btn btn-primary btn-sm w-100 py-1 fw-medium" 
+                              style={{ fontSize: '12px' }}
+                              onClick={() => {
+                                setActiveModalPet({ ...pet, calculatedAddress: pet.calculatedAddress || 'Координаты на карте' });
+                                setModalOwnerName('Загрузка...');
+                                if (pet.userId) {
+                                  fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${pet.userId}`)
+                                    .then(res => res.json())
+                                    .then(data => {
+                                      if (data.success && data.user && data.user.name) setModalOwnerName(data.user.name);
+                                      else setModalOwnerName(`Пользователь #${pet.userId.substring(0, 6)}`);
+                                    })
+                                    .catch(() => setModalOwnerName(`Пользователь #${pet.userId.substring(0, 6)}`));
+                                }
+                              }}
+                            >
+                              🔍 Подробнее
+                            </button>
                           </div>
                         </Popup>
                       </Marker>
 
+                      {/* радиус поиска для свежих пропаж */}
                       {pet.status === 'потерялся' && isFreshLoss && (
                         <Circle
                           center={[pet.lat, pet.lng]}
@@ -454,7 +502,7 @@ export default function App() {
                           radius={1000}             
                         />
                       )}
-                    </div>
+                    </React.Fragment>
                   );
                 })}
               </MapContainer>
