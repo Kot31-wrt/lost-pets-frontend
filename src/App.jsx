@@ -145,7 +145,7 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      fetch('http://localhost:5000/api/pets')
+      fetch('https://lost-pets-api-gkoe.onrender.com/api/pets')
         .then(res => res.json())
         .then(data => setPets(data))
         .catch(err => console.error(err));
@@ -154,7 +154,7 @@ export default function App() {
 
   useEffect(() => {
     if (user && page === 'profile') {
-      fetch(`http://localhost:5000/api/pets/user/${user.id}`)
+      fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/user/${user.id}`)
         .then(res => res.json())
         .then(data => setUserPets(data))
         .catch(err => console.error(err));
@@ -168,7 +168,7 @@ export default function App() {
     setPage('owner_profile'); 
     setActiveModalPet(null); 
 
-    fetch(`http://localhost:5000/api/users/${ownerId}`)
+    fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${ownerId}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -218,7 +218,7 @@ export default function App() {
 
   const handleDelete = (petId) => {
     if (window.confirm('Вы уверены, что хотите удалить это объявление?')) {
-      fetch(`http://localhost:5000/api/pets/${petId}`, { method: 'DELETE' })
+      fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${petId}`, { method: 'DELETE' })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -470,7 +470,7 @@ export default function App() {
               }
               const newPetData = { status, name, breed, description, image, lat: parseFloat(lat), lng: parseFloat(lng), userId: user.id };
 
-              fetch('http://localhost:5000/api/pets', {
+              fetch('https://lost-pets-api-gkoe.onrender.com/api/pets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newPetData)
