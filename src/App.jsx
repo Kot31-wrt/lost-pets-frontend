@@ -117,6 +117,7 @@ export default function App() {
   const [ownerProfile, setOwnerProfile] = useState(null); 
   const [ownerAds, setOwnerAds] = useState([]); 
   const [isLoadingOwner, setIsLoadingOwner] = useState(false); 
+  const [modalOwnerName, setModalOwnerName] = useState('Загрузка...');
 
   const [selectedPetCoords, setSelectedPetCoords] = useState(null); 
   const [activeModalPet, setActiveModalPet] = useState(null);
@@ -459,6 +460,7 @@ export default function App() {
               </MapContainer>
             </div>
 
+            {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
             <div className="mt-4">
               <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Последние объявления</h3>
               {filteredPets.length === 0 ? (
@@ -470,7 +472,35 @@ export default function App() {
                       key={pet._id} 
                       pet={pet} 
                       onFocusOnMap={setSelectedPetCoords} 
-                      onOpenDetails={(p, addr) => setActiveModalPet({ ...p, calculatedAddress: addr })}
+                      
+                      /* ИСПРАВЛЕНО: Теперь при открытии анкеты мы загружаем имя автора с сервера */
+                      onOpenDetails={(p, addr) => {
+                        // 1. Моментально открываем модалку с данными питомца
+                        setActiveModalPet({ ...p, calculatedAddress: addr });
+                        // 2. Ставим имя в режим ожидания
+                        setModalOwnerName('Загрузка...');
+                        
+                        // 3. Делаем запрос к API пользователей
+                        if (p.userId) {
+                          fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${p.userId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data.success && data.user && data.user.name) {
+                                // Подставляем настоящее имя, если нашли
+                                setModalOwnerName(data.user.name);
+                              } else {
+                                // Заглушка, если имени нет
+                                setModalOwnerName(`Пользователь #${p.userId.substring(0, 6)}`);
+                              }
+                            })
+                            .catch(() => {
+                              // Заглушка на случай ошибки сети
+                              setModalOwnerName(`Пользователь #${p.userId.substring(0, 6)}`);
+                            });
+                        } else {
+                          setModalOwnerName('Неизвестный автор');
+                        }
+                      }}
                     />
                   ))}
                 </div>
@@ -808,11 +838,14 @@ export default function App() {
                   }}
                 >
                   <h6 className="fw-bold text-muted small text-uppercase mb-2">👤 Карточка владельца (Профиль ➔)</h6>
+                  
+                  {/* ИСПРАВЛЕНО: Теперь тут выводится человеческое имя, загруженное с бэкенда */}
                   <p className="mb-1 text-dark small">
                     Автор: <strong className="text-primary">
-                      Пользователь #{activeModalPet.userId ? activeModalPet.userId.substring(0, 6) : 'ID'}
+                      {modalOwnerName}
                     </strong>
                   </p>
+                  
                   <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>
                     📋 Телефон и контакты скрыты. Нажмите на этот блок, чтобы посмотреть весь профиль.
                   </p>
