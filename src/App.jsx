@@ -652,21 +652,24 @@ export default function App() {
                     <div className="row row-cols-1 row-cols-md-2 g-3">
                       {ownerAds.map(ad => (
                         <div className="col" key={ad._id}>
-                          <div className="card h-100 border-light shadow-sm position-relative overflow-hidden" style={{ borderRadius: '12px' }}>
-                            <span className={`pet-status-badge badge-absolute ${pet.status === 'потерялся' ? 'lost' : 'found'}`}>
-                              {pet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
-                            </span>
-
-                            {ad.image ? (
-                              <img src={ad.image} className="card-img-top" alt={ad.name} style={{ height: '170px', objectFit: 'cover' }} />
-                            ) : (
-                              <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ height: '170px' }}>📷 Нет фото</div>
-                            )}
+                          <div className="card h-100 border-light shadow-sm position-relative">
                             
-                            <div className="card-body p-3 bg-white">
+                            {/* ИСПРАВЛЕНО: Здесь должно быть ad.status, а не pet.status! */}
+                            <span className={`pet-status-badge badge-absolute ${ad.status === 'потерялся' ? 'lost' : 'found'}`}>
+                              {ad.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
+                            </span>
+                            
+                            {ad.image ? (
+                              <img src={ad.image} className="card-img-top" alt={ad.name} style={{ height: '150px', objectFit: 'cover' }} />
+                            ) : (
+                              <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ height: '150px' }}>
+                                📷 Нет фото
+                              </div>
+                            )}
+                            <div className="card-body p-3">
                               <h5 className="card-title fw-bold text-dark mb-1">{ad.name}</h5>
                               <p className="card-text text-muted small mb-1"><strong>Порода:</strong> {ad.breed}</p>
-                              <p className="card-text small text-secondary text-truncate mb-0">{ad.description}</p>
+                              <p className="card-text small text-secondary text-truncate">{ad.description}</p>
                             </div>
                           </div>
                         </div>
