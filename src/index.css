@@ -269,12 +269,9 @@ body {
   }
 }
 
-/* Общий базовый класс для плашки статуса питомца */
+/* Базовый класс для плашки статуса питомца */
 .pet-status-badge {
-  position: absolute;
-  top: 0;
-  right: 0; /* ВМЕСТО end: 0 пишем классический right */
-  margin: 1rem; /* Соответствует m-3 */
+  display: inline-block;
   font-weight: bold;
   padding: 6px 16px;
   border-radius: 20px;
@@ -284,15 +281,22 @@ body {
   background-color: rgba(33, 29, 29, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(2px);
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-/* Модификатор для статуса "потерялся" */
+/* Этот вспомогательный класс оставляем ТОЛЬКО для карточек, где нужно абсолютное позиционирование поверх фото */
+.badge-absolute {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1rem;
+}
+
+/* Цвета текста для статусов */
 .pet-status-badge.lost {
   color: #ff3b30;
 }
 
-/* Модификатор для статуса "найден" */
 .pet-status-badge.found {
   color: #34c759;
 }

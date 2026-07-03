@@ -65,7 +65,7 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails }) {
         className="card h-100 border-0 position-relative" 
         onClick={() => { onFocusOnMap([pet.lat, pet.lng]); window.scrollTo({ top: 240, behavior: 'smooth' }); }}
       >
-        <span className={`position-absolute top-0 end-0 m-3 badge pet-badge-${pet.status}`}>
+        <span className={`pet-status-badge badge-absolute ${pet.status === 'потерялся' ? 'lost' : 'found'}`}>
           {pet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
         </span>
         
@@ -653,8 +653,8 @@ export default function App() {
                       {ownerAds.map(ad => (
                         <div className="col" key={ad._id}>
                           <div className="card h-100 border-light shadow-sm position-relative overflow-hidden" style={{ borderRadius: '12px' }}>
-                            <span className={`pet-status-badge ${ad.status === 'потерялся' ? 'lost' : 'found'}`}>
-                              {ad.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
+                            <span className={`pet-status-badge badge-absolute ${pet.status === 'потерялся' ? 'lost' : 'found'}`}>
+                              {pet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
                             </span>
 
                             {ad.image ? (
