@@ -300,3 +300,42 @@ body {
 .pet-status-badge.found {
   color: #34c759 !important;
 }
+
+/* Базовый контейнер для кастомного маркера-аватарки */
+.custom-pet-marker {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Круглая обертка для фотографии */
+.marker-avatar-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-color: #e5e7eb; /* серый фон, пока фотка грузится */
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Эффект увеличения при наведении на маркер */
+.marker-avatar-wrapper:hover {
+  transform: scale(1.15);
+  z-index: 1000;
+}
+
+/* Яркая неоновая рамка для потеряшек */
+.marker-avatar-wrapper.lost-border {
+  border: 3px solid #ff3b30;
+  box-shadow: 0 0 10px rgba(255, 59, 48, 0.6), 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+/* Яркая неоновая рамка для найденышей */
+.marker-avatar-wrapper.found-border {
+  border: 3px solid #34c759;
+  box-shadow: 0 0 10px rgba(52, 199, 89, 0.6), 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}

@@ -460,6 +460,7 @@ export default function App() {
               </MapContainer>
             </div>
 
+
             {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
             <div className="mt-4">
               <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Последние объявления</h3>
