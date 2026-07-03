@@ -652,19 +652,33 @@ export default function App() {
                     <div className="row row-cols-1 row-cols-md-2 g-3">
                       {ownerAds.map(ad => (
                         <div className="col" key={ad._id}>
-                          <div className="card h-100 border-light shadow-sm position-relative">
-                            <span className={`position-absolute top-0 end-0 m-2 badge ${ad.status === 'потерялся' ? 'bg-danger' : 'bg-success'}`}>
-                              {ad.status === 'потерялся' ? '💔' : '💚'} {ad.status}
+                          <div className="card h-100 border-light shadow-sm position-relative overflow-hidden" style={{ borderRadius: '12px' }}>
+                            
+                            {/* ИСПРАВЛЕННЫЙ BADGE С ЖЕСТКИМ КОНТРАСТОМ */}
+                            <span 
+                              className="position-absolute top-0 end-0 m-3 fw-bold text-white shadow-sm"
+                              style={{
+                                backgroundColor: ad.status === 'потерялся' ? '#dc3545' : '#198754',
+                                padding: '6px 12px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                zIndex: 10,
+                                letterSpacing: '0.5px'
+                              }}
+                            >
+                              {ad.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
                             </span>
+
                             {ad.image ? (
-                              <img src={ad.image} className="card-img-top" alt={ad.name} style={{ height: '150px', objectFit: 'cover' }} />
+                              <img src={ad.image} className="card-img-top" alt={ad.name} style={{ height: '170px', objectFit: 'cover' }} />
                             ) : (
-                              <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ height: '150px' }}>📷 Нет фото</div>
+                              <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ height: '170px' }}>📷 Нет фото</div>
                             )}
-                            <div className="card-body p-3">
+                            
+                            <div className="card-body p-3 bg-white">
                               <h5 className="card-title fw-bold text-dark mb-1">{ad.name}</h5>
                               <p className="card-text text-muted small mb-1"><strong>Порода:</strong> {ad.breed}</p>
-                              <p className="card-text small text-secondary text-truncate">{ad.description}</p>
+                              <p className="card-text small text-secondary text-truncate mb-0">{ad.description}</p>
                             </div>
                           </div>
                         </div>
