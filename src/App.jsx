@@ -235,8 +235,8 @@ export default function App() {
     setAuthError('');
 
     const url = authMode === 'register' 
-      ? 'http://localhost:5000/api/auth/register' 
-      : 'http://localhost:5000/api/auth/login';
+      ? 'https://lost-pets-api-gkoe.onrender.com/api/auth/register' 
+      : 'https://lost-pets-api-gkoe.onrender.com/api/auth/login';
 
     const bodyData = authMode === 'register'
       ? { name: authName, email: authEmail, password: authPassword }
