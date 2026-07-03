@@ -714,17 +714,10 @@ export default function App() {
                     <div>
                       {/* СТАТУС-ПЛАШКА (С чёткими стилями Bootstrap во избежание слияния) */}
                       <div className="mb-3">
-                        {activeModalPet.status === 'потерялся' ? (
-                          <span className="badge bg-danger text-white px-3 py-2 fs-6 shadow-sm rounded-3">
-                            💔 Потерялся
-                          </span>
-                        ) : (
-                          <span className="badge bg-success text-white px-3 py-2 fs-6 shadow-sm rounded-3">
-                            💚 Найден
-                          </span>
-                        )}
+                        <span className={`pet-status-badge ${activeModalPet.status === 'потерялся' ? 'lost' : 'found'}`}>
+                          {activeModalPet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
+                        </span>
                       </div>
-
                       {/* Live-предупреждение времени */}
                       {activeModalPet.status === 'потерялся' && (
                         <div className="time-alert-box mb-3">
