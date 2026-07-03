@@ -144,6 +144,39 @@ export default function App() {
   // ИСПРАВЛЕНО: Дали переменной чёткое и однозначное имя
   const [isPulseActive, setIsPulseActive] = useState(false);
 
+  // =========================================================================
+  // НАЧАЛО БЛОКА: ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА (КНОПКА "НАЗАД")
+  // =========================================================================
+  
+  // 1. Хук слушает нажатие стрелочки "Назад" в самом браузере
+  useEffect(() => {
+    const handlePopState = (event) => {
+      // Если в истории есть сохраненная страница, возвращаем её в стейт
+      if (event.state && event.state.page) {
+        setPage(event.state.page);
+      } else {
+        // Если вернулись в самое начало, открываем карту
+        setPage('map');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 2. Хук синхронизирует стейт page с адресной строкой браузера
+  useEffect(() => {
+    // Чтобы не дублировать записи в истории, пушим только если страница реально изменилась
+    if (!window.history.state || window.history.state.page !== page) {
+      window.history.pushState({ page }, '', `?page=${page}`);
+    }
+  }, [page]);
+
+  // =========================================================================
+  // КОНЕЦ БЛОКА: ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА
+  // =========================================================================
+
+  // Твои рабочие эффекты запросов к бэкенду (оставляем их ниже, они подхватят изменения!)
   useEffect(() => {
     if (user) {
       fetch('https://lost-pets-api-gkoe.onrender.com/api/pets')
