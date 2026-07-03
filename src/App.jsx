@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Navbar, Container, Nav, Form, Button, Alert } from 'react-bootstrap'; 
 import './index.css'; // Подключаем наши современные кастомные стили
@@ -121,7 +120,6 @@ export default function App() {
 
   const [selectedPetCoords, setSelectedPetCoords] = useState(null); 
   const [activeModalPet, setActiveModalPet] = useState(null);
-  const [hoveredPetId, setHoveredPetId] = useState(null);
 
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -142,6 +140,9 @@ export default function App() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('все');
+  
+  // ИСПРАВЛЕНО: Дали переменной чёткое и однозначное имя
+  const [isPulseActive, setIsPulseActive] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -271,7 +272,7 @@ export default function App() {
     setPage('map');
   };
 
-  // --- ЭКРАН АВТОРИЗАЦИИ (МОДЕРНИЗИРОВАННЫЙ) ---
+  // --- ЭКРАН АВТОРИЗАЦИИ ---
   if (!user) {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
@@ -327,7 +328,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '50px' }}>
       
-      {/* СОВРЕМЕННЫЙ СТЕКЛЯННЫЙ НАВБАР */}
+      {/* СОВРЕМЕННЫЙ НАВБАР */}
       <Navbar fixed="top" expand="lg" className="shadow-sm">
         <Container>
           <Navbar.Brand href="#" className="fw-bold fs-4">🐾 Поиск Питомцев</Navbar.Brand>
@@ -342,7 +343,6 @@ export default function App() {
         </Container>
       </Navbar>
 
-      {/* ОСТУП ПОД ФИКСИРОВАННЫЙ НАВБАР */}
       <div style={{ paddingTop: '90px' }}></div>
 
       <Container className="mt-4">
@@ -352,8 +352,7 @@ export default function App() {
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
             <h2 className="fw-bold mb-4 text-dark">🗺️ Карта активности</h2>
             
-            {/* Трендовая плоская панель фильтрации */}
-            <div className="row g-3 mb-4 p-3 bg-white rounded-4 border-0 shadow-sm" style={{ background: '#F9FAFB' }}>
+            <div className="row g-3 mb-4 p-3 rounded-4" style={{ background: '#F9FAFB' }}>
               <div className="col-md-6">
                 <label className="form-label fw-semibold text-muted small">Поиск по ключевым словам</label>
                 <input type="text" className="form-control" placeholder="Поиск по кличке или породе..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -375,24 +374,19 @@ export default function App() {
               )}
             </div>
             
-            {/* Картографический блок */}
             <div style={{ height: '440px', width: '100%', marginBottom: '40px' }} className="shadow-sm rounded-4 overflow-hidden border">
               <MapContainer center={[55.75, 37.61]} zoom={11} style={{ height: '100%', width: '100%' }}>
                 <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {selectedPetCoords && <ChangeMapCenter center={selectedPetCoords} />}
                 
                 {filteredPets.map(pet => {
-                  // 1. Вычисляем, сколько часов прошло с момента публикации
-                  // Если на бэкенде поле называется по-другому (например, date), замени pet.createdAt на нужное
-                  const createdTime = new Date(pet.createdAt).getTime(); 
+                  const createdTime = pet.createdAt ? new Date(pet.createdAt).getTime() : new Date().getTime(); 
                   const currentTime = new Date().getTime();
                   const hoursPassed = (currentTime - createdTime) / (1000 * 60 * 60);
-                  const isFreshLoss = hoursPassed <= 24; // True, если прошло меньше суток
-                  
+                  const isFreshLoss = hoursPassed <= 24; 
 
                   return (
                     <div key={pet._id}>
-                      {/* Сам маркер питомца */}
                       <Marker position={[pet.lat, pet.lng]}>
                         <Popup>
                           <div className="p-1" style={{ maxWidth: '200px' }}>
@@ -402,9 +396,8 @@ export default function App() {
                               <img src={pet.image} alt={pet.name} className="img-fluid rounded border mb-2" style={{ maxHeight: '100px', width: '100%', objectFit: 'cover' }} />
                             )}
                             
-                            {/* НАШЕ ДОБАВЛЕНИЕ: Блок предупреждения внутри поп-апа */}
                             {pet.status === 'потерялся' && (
-                              <div className={`alert py-1 px-2 m-0 border-0 text-center fw-medium`} style={{ fontSize: '0.75rem', backgroundColor: isFreshLoss ? '#FFF1F2' : '#FEF3C7', color: isFreshLoss ? '#BE123C' : '#B45309' }}>
+                              <div className="alert py-1 px-2 m-0 border-0 text-center fw-medium" style={{ fontSize: '0.75rem', backgroundColor: isFreshLoss ? '#FFF1F2' : '#FEF3C7', color: isFreshLoss ? '#BE123C' : '#B45309' }}>
                                 {isFreshLoss 
                                   ? '⏳ Потерян недавно! Зона поиска в радиусе 1 км.' 
                                   : '⚠️ Прошло более 24 часов. Мог уйти дальше.'}
@@ -414,18 +407,17 @@ export default function App() {
                         </Popup>
                       </Marker>
 
-                      {/* НАШЕ ДОБАВЛЕНИЕ: Круг радиуса, который виден ТОЛЬКО первые 24 часа для статуса "потерялся" */}
                       {pet.status === 'потерялся' && isFreshLoss && (
                         <Circle
                           center={[pet.lat, pet.lng]}
                           pathOptions={{
-                            color: '#E11D48',       // Яркий красный контур
-                            fillColor: '#FDA4AF',   // Нежная розовая заливка
-                            fillOpacity: 0.3,       // Прозрачность фона
+                            color: '#E11D48',       
+                            fillColor: '#FDA4AF',   
+                            fillOpacity: 0.3,       
                             stroke: true,
-                            weight: 1.5             // Толщина линии
+                            weight: 1.5             
                           }}
-                          radius={1000}             // 1000 метров = 1 км
+                          radius={1000}             
                         />
                       )}
                     </div>
@@ -434,7 +426,6 @@ export default function App() {
               </MapContainer>
             </div>
 
-            {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
             <div className="mt-4">
               <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Последние объявления</h3>
               {filteredPets.length === 0 ? (
@@ -452,7 +443,6 @@ export default function App() {
                 </div>
               )}
             </div>
-
           </div>
         )}
 
@@ -522,8 +512,7 @@ export default function App() {
                 }} />
               </div>
 
-              {/* КАРТА ДЛЯ ФОРМЫ */}
-              <div className="mb-4 p-4 rounded-4 border-0 shadow-sm" style={{ background: '#F9FAFB' }}>
+              <div className="mb-4 p-4 rounded-4" style={{ background: '#F9FAFB' }}>
                 <label className="form-label fw-bold text-primary mb-1">📍 Геолокация происшествия</label>
                 <p className="text-muted small mb-3">Используйте умный текстовый поиск или кликните по мини-карте вручную.</p>
                 
@@ -563,8 +552,7 @@ export default function App() {
                 </div>
               </div>
               
-
-              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">🚀 Разместить объявление</button>
+              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">🚀 Разместить объявиение</button>
             </form>
           </div>
         )}
@@ -614,7 +602,7 @@ export default function App() {
           </div>
         )}
 
-      {/* ВКЛАДКА 4: ПУБЛИЧНАЯ СТРАНИЦА ДРУГОГО ПОЛЬЗОВАТЕЛЯ (ВЛАДЕЛЬЦА) */}
+        {/* ВКЛАДКА 4: ПУБЛИЧНАЯ СТРАНИЦА ДРУГОГО ПОЛЬЗОВАТЕЛЯ */}
         {page === 'owner_profile' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
             <button className="btn btn-outline-secondary btn-sm mb-4 px-3" onClick={() => setPage('map')}>
@@ -642,7 +630,7 @@ export default function App() {
                     <p className="text-muted small mb-3">Автор объявлений на платформе</p>
                     <p className="text-secondary small bg-white p-3 rounded-3 border border-light shadow-sm">{ownerProfile.bio || '💬 Описание профиля отсутствует.'}</p>
                     
-                    <button className="btn btn-primary w-100 fw-bold my-3 py-2.5 shadow-sm" onClick={() => alert('💬 Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере. Владельцу профиля отправлено пуш-уведомление.')}>
+                    <button className="btn btn-primary w-100 fw-bold my-3 py-2.5 shadow-sm" onClick={() => alert('💬 Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере.')}>
                       ✉️ Открыть диалог
                     </button>
 
@@ -652,19 +640,6 @@ export default function App() {
                       <h6 className="fw-bold text-muted small text-uppercase mb-3">📍 Прямые контакты:</h6>
                       <p className="mb-2 small"><strong>Почта:</strong> <a href={`mailto:${ownerProfile.email}`} className="text-decoration-none fw-medium">{ownerProfile.email}</a></p>
                       <p className="mb-3 small"><strong>Телефон:</strong> {ownerProfile.phone || '<Пользователь скрыл телефон>'}</p>
-                      
-                      <div className="d-grid gap-2 mt-3">
-                        {ownerProfile.telegram && (
-                          <a href={`https://t.me/${ownerProfile.telegram}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-info text-start fw-semibold py-2">
-                            ✈️ Telegram: @{ownerProfile.telegram}
-                          </a>
-                        )}
-                        {ownerProfile.whatsapp && (
-                          <a href={`https://wa.me/${ownerProfile.whatsapp}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-success text-start fw-semibold py-2">
-                            💬 WhatsApp: {ownerProfile.whatsapp}
-                          </a>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -706,139 +681,134 @@ export default function App() {
 
       </Container>
 
-      {/* --- КРАСИВОЕ СОВРЕМЕННОЕ МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
-        {activeModalPet && (
-          <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }} tabIndex="-1" role="dialog">
-            <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-              <div className="modal-content border-0 shadow-lg">
-                
-                <div className="modal-header border-0 px-4 pt-4 pb-0">
-                  <h4 className="modal-title fw-bold text-dark">🐾 Анкета питомца: {activeModalPet.name}</h4>
-                  {/* ИЗМЕНЕНИЕ 1: Добавили сброс анимации при клике на крестик */}
-                  <button type="button" className="btn-close" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }} aria-label="Close"></button>
-                </div>
-                
-                <div className="modal-body p-4">
-                  <div className="row g-4">
-                    {/* Левая колонка: Изображение */}
-                    <div className="col-md-6">
-                      {activeModalPet.image ? (
-                        <img src={activeModalPet.image} alt={activeModalPet.name} className="img-fluid rounded-4 shadow-sm border border-light" style={{ width: '100%', maxHeight: '340px', objectFit: 'cover' }} />
-                      ) : (
-                        <div className="bg-light h-100 d-flex align-items-center justify-content-center text-muted rounded-4 border" style={{ minHeight: '240px' }}>
-                          📷 Фотография отсутствует
+      {/* --- МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
+      {activeModalPet && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }} tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div className="modal-content border-0 shadow-lg">
+              
+              <div className="modal-header border-0 px-4 pt-4 pb-0">
+                <h4 className="modal-title fw-bold text-dark">🐾 Анкета питомца: {activeModalPet.name}</h4>
+                {/* ИСПРАВЛЕНО: Заменили имя на верное без "d" на конце */}
+                <button type="button" className="btn-close" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }} aria-label="Close"></button>
+              </div>
+              
+              <div className="modal-body p-4">
+                <div className="row g-4">
+                  {/* Левая колонка: Изображение */}
+                  <div className="col-md-6">
+                    {activeModalPet.image ? (
+                      <img src={activeModalPet.image} alt={activeModalPet.name} className="img-fluid rounded-4 shadow-sm border border-light" style={{ width: '100%', maxHeight: '340px', objectFit: 'cover' }} />
+                    ) : (
+                      <div className="bg-light h-100 d-flex align-items-center justify-content-center text-muted rounded-4 border" style={{ minHeight: '240px' }}>
+                        📷 Фотография отсутствует
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Правая колонка: Описание */}
+                  <div className="col-md-6 d-flex flex-column justify-content-between">
+                    <div>
+                      <span className={`badge mb-2 px-3 py-2 fs-6 pet-badge-${activeModalPet.status}`}>
+                        {activeModalPet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
+                      </span>
+
+                      {activeModalPet.status === 'потерялся' && (
+                        <div className="time-alert-box mt-2">
+                          {activeModalPet.createdAt && ((new Date().getTime() - new Date(activeModalPet.createdAt).getTime()) / (1000 * 60 * 60)) <= 24 ? (
+                            <div className="status-fresh">
+                              {/* ИСПРАВЛЕНО: Убрана опечатка и референс-баг */}
+                              <span className={isPulseActive ? "pulse-dot" : "static-dot"}></span>
+                              <span>Активный поиск: питомец потерян недавно, радиус на карте актуален (1 км)</span>
+                            </div>
+                          ) : (
+                            <div className="status-old">
+                              <span>⚠️ Внимание: прошло более 24 часов. Зона поиска расширена, питомец мог переместиться.</span>
+                            </div>
+                          )}
                         </div>
                       )}
-                    </div>
-                    
-                    {/* Правая колонка: Описание и кликабельная карточка владельца */}
-                    <div className="col-md-6 d-flex flex-column justify-content-between">
-                      <div>
-                        {/* Статус-плашка ("Потерялся" / "Найден") */}
-                        <span className={`badge mb-2 px-3 py-2 fs-6 pet-badge-${activeModalPet.status}`}>
-                          {activeModalPet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
-                        </span>
 
-                        {/* НАШЕ ДОБАВЛЕНИЕ: Вычисление времени и вывод Live-предупреждения */}
-                        {activeModalPet.status === 'потерялся' && (
-                          <div className="time-alert-box mt-2">
-                            {activeModalPet.createdAt && ((new Date().getTime() - new Date(activeModalPet.createdAt).getTime()) / (1000 * 60 * 60)) <= 24 ? (
-                              <div className="status-fresh">
-                                {/* ИЗМЕНЕНИЕ 2: Теперь класс меняется динамически в зависимости от стейта */}
-                                <span className={isPulseActive ? "pulse-dot" : "static-dot"}></span>
-                                <span>Активный поиск: питомец потерян недавно, радиус на карте актуален (1 км)</span>
-                              </div>
-                            ) : (
-                              <div className="status-old">
-                                <span>⚠️ Внимание: прошло более 24 часов. Зона поиска расширена, питомец мог переместиться.</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        <h3 className="fw-bold mb-1 text-dark">{activeModalPet.name}</h3>
-                        <p className="text-primary fw-semibold small mb-3">📍 {activeModalPet.calculatedAddress || 'Координаты определяются...'}</p>
-                        
-                        <hr className="my-2" />
-                        <p className="mb-2 text-dark small"><strong>Порода:</strong> {activeModalPet.breed}</p>
-                        <p className="mb-3 text-secondary small" style={{ whiteSpace: 'pre-line' }}>
-                          <strong>Особые приметы:</strong><br />{activeModalPet.description}
-                        </p>
-                      </div>
-                    </div>
-
-                  <div className="modal-footer border-0">
-                    <button type="button" className="btn btn-secondary" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }}>Закрыть</button>
-                  </div>
-              
-                  {/* СТИЛЬНЫЙ КЛИКАБЕЛЬНЫЙ БЛОК СВЯЗИ С АВТОРOМ ОБЪЯВЛЕНИЯ */}
-                  <div 
-                    className="p-3 rounded-4 border border-light shadow-sm mt-3"
-                    style={{ 
-                      cursor: 'pointer', 
-                      transition: 'all 0.2s ease-in-out',
-                      backgroundColor: '#F9FAFB'
-                    }}
-                    title="Нажмите сюда, чтобы открыть профиль владельца"
-                    onClick={() => {
-                      console.log("Кликнули на блок автора с ID:", activeModalPet.userId);
-                      if (activeModalPet.userId) {
-                        openOwnerProfile(activeModalPet.userId);
-                      } else {
-                        alert("⚠️ У этого объявления не найден ID автора в базе данных.");
-                      }
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#EEF2F6';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#F9FAFB';
-                      e.currentTarget.style.transform = 'none';
-                    }}
-                  >
-                    <h6 className="fw-bold text-muted small text-uppercase mb-2">👤 Карточка владельца (Профиль ➔)</h6>
-                    <p className="mb-1 text-dark small">
-                      Автор: <strong className="text-primary">
-                        Пользователь #{activeModalPet.userId ? activeModalPet.userId.substring(0, 6) : 'ID'}
-                      </strong>
-                    </p>
-                    <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>
-                      📋 Телефон и контакты скрыты. Нажмите на этот блок, чтобы посмотреть весь профиль.
-                    </p>
-                    
-                    <div className="d-flex gap-2">
-                      <a 
-                        href="tel:+79991112233" 
-                        className="btn btn-success btn-sm fw-bold w-50 py-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        📞 Позвонить
-                      </a>
-                      <button 
-                        type="button"
-                        className="btn btn-primary btn-sm fw-bold w-50 py-2"
-                        onClick={(e) => {
-                          e.stopPropagation(); 
-                          if (activeModalPet.userId) openOwnerProfile(activeModalPet.userId);
-                        }}
-                      >
-                        ✉️ Написать
-                      </button>
+                      <h3 className="fw-bold mb-1 text-dark">{activeModalPet.name}</h3>
+                      <p className="text-primary fw-semibold small mb-3">📍 {activeModalPet.calculatedAddress || 'Координаты определяются...'}</p>
+                      
+                      <hr className="my-2" />
+                      <p className="mb-2 text-dark small"><strong>Порода:</strong> {activeModalPet.breed}</p>
+                      <p className="mb-3 text-secondary small" style={{ whiteSpace: 'pre-line' }}>
+                        <strong>Особые приметы:</strong><br />{activeModalPet.description}
+                      </p>
                     </div>
                   </div>
-
                 </div>
+
+                {/* СТИЛЬНЫЙ КЛИКАБЕЛЬНЫЙ БЛОК СВЯЗИ С АВТОРOМ ОБЪЯВЛЕНИЯ */}
+                <div 
+                  className="p-3 rounded-4 border border-light shadow-sm mt-4"
+                  style={{ 
+                    cursor: 'pointer', 
+                    transition: 'all 0.2s ease-in-out',
+                    backgroundColor: '#F9FAFB'
+                  }}
+                  title="Нажмите сюда, чтобы открыть профиль владельца"
+                  onClick={() => {
+                    if (activeModalPet.userId) {
+                      openOwnerProfile(activeModalPet.userId);
+                    } else {
+                      alert("⚠️ У этого объявления не найден ID автора в базе данных.");
+                    }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#EEF2F6';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F9FAFB';
+                    e.currentTarget.style.transform = 'none';
+                  }}
+                >
+                  <h6 className="fw-bold text-muted small text-uppercase mb-2">👤 Карточка владельца (Профиль ➔)</h6>
+                  <p className="mb-1 text-dark small">
+                    Автор: <strong className="text-primary">
+                      Пользователь #{activeModalPet.userId ? activeModalPet.userId.substring(0, 6) : 'ID'}
+                    </strong>
+                  </p>
+                  <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>
+                    📋 Телефон и контакты скрыты. Нажмите на этот блок, чтобы посмотреть весь профиль.
+                  </p>
+                  
+                  <div className="d-flex gap-2">
+                    <button 
+                      type="button"
+                      className="btn btn-success btn-sm fw-bold w-50 py-2"
+                      onClick={(e) => { e.stopPropagation(); alert('Контакты доступны в полном профиле'); }}
+                    >
+                      📞 Позвонить
+                    </button>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-sm fw-bold w-50 py-2"
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        if (activeModalPet.userId) openOwnerProfile(activeModalPet.userId);
+                      }}
+                    >
+                      ✉️ Написать
+                    </button>
+                  </div>
+                </div>
+
               </div>
-            
+              
               <div className="modal-footer bg-light border-0 p-3 rounded-bottom-4">
-                <button type="button" className="btn btn-secondary btn-sm px-4" onClick={() => setActiveModalPet(null)}>Закрыть</button>
+                {/* ИСПРАВЛЕНО: Добавлен сброс стейта при закрытии в футере модалки */}
+                <button type="button" className="btn btn-secondary btn-sm px-4" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }}>Закрыть</button>
               </div>
 
             </div>
           </div>
         </div>
       )}
+      
     </div>
   );
 }
