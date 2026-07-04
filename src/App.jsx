@@ -6,11 +6,12 @@ import './index.css';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } from 'react-leaflet';
+import L from 'leaflet';
 
-// Создаем иконку, но НИКУДА её не присваиваем глобально
+// создаем иконку, используя прямые ссылки на CDN Leaflet
 export const defaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -1665,7 +1666,7 @@ function LocationMarker({ lat, lng, setLat, setLng }) {
     },
   });
 
-  // Указываем icon={defaultIcon} ТОЛЬКО здесь
+  // теперь используем нашу иконку из константы
   return lat && lng ? (
     <Marker 
       position={[parseFloat(lat), parseFloat(lng)]} 
