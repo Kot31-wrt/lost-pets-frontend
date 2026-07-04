@@ -303,11 +303,13 @@ body {
 
 /* контейнер для маркера-аватарки */
 .custom-pet-marker {
-  background: none !important;
-  border: none !important;
   display: flex !important;
-  align-items: center;
-  justify-content: center;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 48px !important; /* Чуть увеличим, чтобы точно не съедался */
+  height: 48px !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 /* круглая обертка для фотографии питомца */
@@ -317,10 +319,9 @@ body {
   border-radius: 50% !important;
   background-size: cover !important;
   background-position: center !important;
-  background-color: #e5e7eb;
-  border: 3px solid var(--marker-color, #6b7280) !important;
-  box-shadow: 0 0 10px var(--shadow-color, rgba(0, 0, 0, 0.2)), 0 4px 8px rgba(0, 0, 0, 0.25) !important;
-  transition: transform 0.2s ease-in-out !important;
+  border: 3px solid #1a1a1a !important; /* Цвет границы под цвет фона */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+  display: block !important;
 }
 
 /* эффект увеличения при наведении */

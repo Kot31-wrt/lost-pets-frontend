@@ -33,7 +33,7 @@ function ChangeMapCenter({ center }) {
 }
 
 // --- КОМПОНЕНТ КАРТОЧКИ ПИТОМЦА ---
-function PetCard({ pet, onFocusOnMap, onOpenDetails }) {
+function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUserId }) {
   const [address, setAddress] = useState('Загрузка адреса...');
 
   useEffect(() => {
@@ -76,6 +76,25 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails }) {
             <p className="card-text text-muted small mb-2"><strong>Порода:</strong> {pet.breed}</p>
             <p className="card-text small text-secondary text-truncate">{pet.description}</p>
           </div>
+
+          {/* --- БЛОК КНОПОК УПРАВЛЕНИЯ --- */}
+          {/* Отображается только если пользователь - владелец */}
+          {currentUserId === pet.userId && (
+            <div className="d-flex gap-2 mt-3 pt-3 border-top">
+              <button 
+                className="btn btn-sm btn-outline-primary flex-grow-1" 
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              >
+                Редактировать
+              </button>
+              <button 
+                className="btn btn-sm btn-outline-danger flex-grow-1" 
+                onClick={(e) => { e.stopPropagation(); onDelete(pet._id); }}
+              >
+                Удалить
+              </button>
+            </div>
+          )}
           
           <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
             <small className="text-muted">{new Date(pet.createdAt).toLocaleDateString()}</small>
@@ -141,6 +160,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('все');
   const [isPulseActive, setIsPulseActive] = useState(false);
+
+  const [editingPet, setEditingPet] = useState(null);
 
   // Стейты для редактирования профиля
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -318,6 +339,23 @@ export default function App() {
       console.error('Ошибка при удалении объявления:', error);
       alert('Произошла ошибка при соединении с сервером');
     }
+  };
+
+  const handleEditPet = (pet) => {
+    // Заполняем стейты формы данными выбранного питомца
+    setName(pet.name);
+    setBreed(pet.breed);
+    setDescription(pet.description);
+    setStatus(pet.status);
+    setImage(pet.image);
+    setLat(pet.lat);
+    setLng(pet.lng);
+    
+    // Сохраняем ID питомца, которого редактируем
+    setEditingPet(pet); // Убедись, что этот стейт добавлен
+    
+    // Переключаем страницу на форму
+    setPage('add-pet');
   };
 
   const handleSendResetCode = () => {
@@ -925,6 +963,7 @@ export default function App() {
                           pet={pet} 
                           onFocusOnMap={() => {}} 
                           onDelete={handleDeletePet} 
+                          onEdit={() => handleEditPet(pet)}
                           currentUserId={user.id || user._id} 
                         />
                       </div>
@@ -1168,23 +1207,37 @@ export default function App() {
               </Form>
             </div>
 
-              <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
-                <h3 className="fw-bold mb-4 text-dark">Управление публикациями ({userPets.length})</h3>
+              {/* Управление публикациями */}
+              <div className="card p-4 shadow-sm">
+                <h3 className="fw-bold mb-4 text-white">Мои объявления ({userPets.length})</h3>
                 {userPets.length === 0 ? (
-                  <p className="text-muted py-4 text-center bg-light rounded-3">Вы еще не опубликовали ни одного активного объявления.</p>
+                  <p className="text-muted py-4 text-center">Вы еще не опубликовали ни одного объявления.</p>
                 ) : (
-                  <div className="row row-cols-1 row-cols-md-2 g-3">
+                  <div className="row g-3">
                     {userPets.map(pet => (
-                      <div key={pet._id} className="col">
-                        <div className="card h-100 border-light shadow-sm">
+                      <div key={pet._id} className="col-12 col-md-6">
+                        <div className="card h-100 border-0" style={{ background: 'rgba(255,255,255,0.05)' }}>
                           {pet.image && <img src={pet.image} className="card-img-top" alt={pet.name} style={{ height: '140px', objectFit: 'cover' }} />}
-                          <div className="card-body d-flex flex-column justify-content-between p-3">
-                            <div>
-                              <h5 className="card-title fw-bold text-dark mb-1">{pet.status === 'потерялся' ? '💔' : '💚'} {pet.name}</h5>
-                              <p className="card-text text-muted small mb-2"><strong>Порода:</strong> {pet.breed}</p>
-                              <p className="card-text small text-secondary text-truncate">{pet.description}</p>
+                          <div className="card-body p-3">
+                            <h5 className="card-title fw-bold text-light">{pet.status === 'потерялся' ? '💔' : '💚'} {pet.name}</h5>
+                            <p className="small text-muted mb-2">{pet.breed}</p>
+                            
+                            <div className="d-flex gap-2 mt-3">
+                              {/* Кнопка Редактировать */}
+                              <button 
+                                className="btn btn-outline-primary btn-sm flex-grow-1" 
+                                onClick={() => openEditForm(pet)} // завтра пропишем эту функцию
+                              >
+                                Редактировать
+                              </button>
+                              {/* Кнопка Удалить */}
+                              <button 
+                                className="btn btn-outline-danger btn-sm flex-grow-1" 
+                                onClick={() => handleDelete(pet._id)}
+                              >
+                                Удалить
+                              </button>
                             </div>
-                            <button className="btn btn-danger btn-sm w-100 mt-3 py-2 fw-semibold" onClick={() => handleDelete(pet._id)}>Удалить объявление</button>
                           </div>
                         </div>
                       </div>
