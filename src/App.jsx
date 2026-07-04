@@ -6,17 +6,6 @@ import './index.css';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } from 'react-leaflet';
-import L from 'leaflet';
-
-// создаем иконку, используя прямые ссылки на CDN Leaflet
-export const defaultIcon = L.icon({
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
 
 // регулярное выражение для проверки российских номеров телефонов
 const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[49][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
@@ -1666,11 +1655,18 @@ function LocationMarker({ lat, lng, setLat, setLng }) {
     },
   });
 
-  // теперь используем нашу иконку из константы
+  // Создаем иконку прямо здесь, чтобы она была локальной и безопасной
+  const standardIcon = L.icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+  });
+
   return lat && lng ? (
     <Marker 
       position={[parseFloat(lat), parseFloat(lng)]} 
-      icon={defaultIcon} 
+      icon={standardIcon} 
     />
   ) : null;
 }
