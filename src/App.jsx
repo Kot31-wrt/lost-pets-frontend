@@ -1269,7 +1269,7 @@ export default function App() {
                               {/* Кнопка Удалить */}
                               <button 
                                 className="btn btn-outline-danger btn-sm flex-grow-1" 
-                                onClick={() => handleDelete(pet._id)}
+                                onClick={() => handleDeletePet(pet._id)}
                               >
                                 Удалить
                               </button>
