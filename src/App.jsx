@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Navbar, Container, Nav, Form, Button, Alert } from 'react-bootstrap'; 
 import './index.css'; 
 
-// --- НАСТРОЙКА КАРТЫ LEAFLET ---
+// настройка карты Leaflet
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } from 'react-leaflet';
 
-// Регулярное выражение для проверки российских номеров телефонов
+// регулярное выражение для проверки российских номеров телефонов
 const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[49][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
 
-// Компонент, который слушает клики по карте и передает координаты в форму
+// компонент, который слушает клики по карте и передает координаты в форму
 function MapClickHandler({ setLat, setLng }) {
   useMapEvents({
     click(e) {
@@ -21,7 +21,7 @@ function MapClickHandler({ setLat, setLng }) {
   return null;
 }
 
-// Компонент для принудительного перемещения карты при поиске адреса
+// компонент для принудительного перемещения карты при поиске адреса
 function ChangeMapCenter({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -32,7 +32,7 @@ function ChangeMapCenter({ center }) {
   return null;
 }
 
-// --- КОМПОНЕНТ КАРТОЧКИ ПИТОМЦА ---
+// компонет карточки питомца в ленте
 function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUserId }) {
   const [address, setAddress] = useState('Загрузка адреса...');
 
@@ -77,8 +77,8 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUs
             <p className="card-text small text-secondary text-truncate">{pet.description}</p>
           </div>
 
-          {/* --- БЛОК КНОПОК УПРАВЛЕНИЯ --- */}
-          {/* Отображается только если пользователь - владелец */}
+          {/* блок кнопок управления */}
+          {/* отображается только если пользователь - владелец */}
           {currentUserId === pet.userId && (
             <div className="d-flex gap-2 mt-3 pt-3 border-top">
               <button 
@@ -115,7 +115,7 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUs
   );
 }
 
-// --- ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ ---
+// главный компонент приложения
 export default function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('petUser');
@@ -164,7 +164,7 @@ export default function App() {
   const [editingPet, setEditingPet] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Стейты для редактирования профиля
+  // стейты для редактирования профиля
   const [profileName, setProfileName] = useState(user?.name || '');
   const [profilePhone, setProfilePhone] = useState(user?.phone || '');
   const [profileTelegram, setProfileTelegram] = useState(user?.telegram || '');
@@ -186,7 +186,7 @@ export default function App() {
       setLat(editingPet.lat || '');
       setLng(editingPet.lng || '');
     } else {
-      // Если editingPet null (режим создания), очищаем форму
+      // если editingPet null (режим создания), очищаем форму
       setName('');
       setBreed('');
       setDescription('');
@@ -195,9 +195,9 @@ export default function App() {
       setLat('');
       setLng('');
     }
-  }, [editingPet]); // Сработает автоматически, как только setEditingPet получит данные
+  }, [editingPet]); // сработает автоматически, как только setEditingPet получит данные
 
-  // Синхронизация профиля при обновлении данных пользователя
+  // синхронизация профиля при обновлении данных пользователя
   useEffect(() => {
     if (user) {
       setProfileName(user.name || '');
@@ -209,7 +209,7 @@ export default function App() {
     }
   }, [user]);
 
-  // ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА (КНОПКА "НАЗАД")
+  // хуки для истории браузера, чтобы при нажатии "назад" корректно менялись страницы
   useEffect(() => {
     const handlePopState = (event) => {
       if (event.state && event.state.page) {
@@ -228,7 +228,7 @@ export default function App() {
     }
   }, [page]);
 
-  // 1. Запрос всех питомцев с бэкенда
+  // запрос всех питомцев при загрузке страницы и при смене страницы
   useEffect(() => {
     if (user) {
       fetch('https://lost-pets-api-gkoe.onrender.com/api/pets')
@@ -251,7 +251,7 @@ export default function App() {
     }
   }, [page, user]);
 
-  // 2. Запрос питомцев конкретного юзера
+  // запрос питомцев текущего пользователя при переходе на страницу профиля
   useEffect(() => {
     if (user && page === 'profile') {
       fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/user/${user.id}`)
@@ -284,7 +284,7 @@ export default function App() {
       setLat(editingPet.lat || '');
       setLng(editingPet.lng || '');
     } else {
-      // Очистка при создании нового объявления
+      // очистка при создании нового объявления
       setName('');
       setBreed('');
       setDescription('');
@@ -372,7 +372,7 @@ export default function App() {
       const data = await response.json();
 
       if (data.success) {
-        // Обновляем список питомцев в стейте, убирая удаленного
+        // обновляем список питомцев в стейте, убирая удаленного
         setUserPets(prevPets => prevPets.filter(pet => pet._id !== petId));
         setPets(prevPets => prevPets.filter(pet => pet._id !== petId));
       } else {
@@ -386,13 +386,13 @@ export default function App() {
 
   const handleEditPet = (pet) => {
     console.log("Кого редактируем:", pet);
-    setEditingPet(pet);      // Сохраняем объект целиком
-    setName(pet.name);       // Заполняем состояние для инпута
-    setBreed(pet.breed);     // Заполняем состояние
+    setEditingPet(pet);      // сохраняем объект целиком
+    setName(pet.name);       // заполняем состояние для инпута
+    setBreed(pet.breed);     // заполняем состояние
     setDescription(pet.description);
     setStatus(pet.status);   // ВАЖНО: сохраняем текущий статус
-    setImage(pet.image);     // Сохраняем ссылку на фото
-    setLat(pet.lat);         // Сохраняем координаты
+    setImage(pet.image);     // сохраняем ссылку на фото
+    setLat(pet.lat);         // сохраняем координаты
     setLng(pet.lng);
     setIsEditModalOpen(true);
   };
@@ -494,7 +494,7 @@ export default function App() {
     setPage('map');
   };
 
-  // --- ЭКРАН АВТОРИЗАЦИИ И СБРОСА ПАРОЛЯ ---
+  // экран авторизации и сброса пароля
   if (!user) {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
@@ -591,11 +591,11 @@ export default function App() {
     );
   }
 
-  // --- ОСНОВНОЙ РАБОЧИЙ ИНТЕРФЕЙС ---
+  // основнйо рабочий интерфейс приложения после авторизации
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '50px' }}>
       
-      {/* СОВРЕМЕННЫЙ НАВБАР */}
+      {/* современный навбар */}
       <Navbar fixed="top" expand="lg" className="shadow-sm">
         <Container>
           <Navbar.Brand href="#" className="fw-bold fs-4">LOST & FOUND</Navbar.Brand>
@@ -614,7 +614,7 @@ export default function App() {
 
       <Container className="mt-4">
         
-        {/* ВКЛАДКА 1: КАРТА И ЛЕНТА ОБЪЯВЛЕНИЙ */}
+        {/* карта и лента обновлений */}
         {page === 'map' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
             <h2 className="fw-bold mb-4 text-dark">Карта активности</h2>
@@ -740,7 +740,7 @@ export default function App() {
               </MapContainer>
             </div>
 
-            {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
+            {/* лента объявлений */}
             <div className="mt-4">
               <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">Последние объявления</h3>
               {(!Array.isArray(filteredPets) || filteredPets.length === 0) ? (
@@ -781,7 +781,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ВКЛАДКА 2: ПОДАТЬ ОБЪЯВЛЕНИЕ */}
+        {/* подать объявление */}
         {page === 'add' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm" style={{ maxWidth: '720px', margin: '0 auto' }}>
             <h2 className="fw-bold mb-2 text-center text-dark">Новое объявление</h2>
@@ -897,11 +897,11 @@ export default function App() {
           </div>
         )}
 
-        {/* ВКЛАДКА 3: ЛИЧНЫЙ КАБИНЕТ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ */}
+        {/* личный кабинет пользователя */}
         {page === 'profile' && (
           <div className="container py-4">
             <div className="row g-4">
-              {/* Карточка пользователя */}
+              {/* карточка пользователя */}
               <div className="col-md-4">
                 <div className="p-4 bg-white rounded-4 border border-light shadow-sm text-center">
                   {user.avatar ? (
@@ -944,7 +944,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Контактная информация */}
+              {/* контактная информация */}
               <div className="col-md-8">
                 <div className="p-4 bg-white rounded-4 border border-light shadow-sm mb-4">
                   <h5 className="fw-bold text-dark mb-3">Контактная информация</h5>
@@ -988,7 +988,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Мои объявления */}
+                {/* мои объявления */}
                 <h5 className="fw-bold text-dark mb-3">Мои объявления ({userPets.length})</h5>
                 {userPets.length === 0 ? (
                   <div className="alert alert-light border text-center py-4 rounded-4">
@@ -1014,7 +1014,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ================= ОТДЕЛЬНАЯ СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ ================= */}
+        {/* отдельная страница редактирования профиля */}
         {page === 'edit-profile' && (
           <div className="container py-4" style={{ maxWidth: '600px' }}>
             <div className="d-flex align-items-center mb-4">
@@ -1039,14 +1039,14 @@ export default function App() {
 
                 const currentUserId = user.id || user._id;
 
-                // Отправляем обычный JSON с независимыми полями
+                // отправляем обычный JSON с независимыми полями
                 const updatedData = {
                   name: profileName || user.name,
                   phone: profilePhone,
                   whatsapp: profileWhatsapp,
                   telegram: profileTelegram,
                   bio: profileBio,
-                  avatar: profileAvatar // Здесь будет строка Base64 или старый URL
+                  avatar: profileAvatar // здесь будет строка Base64 или старый URL
                 };
 
                 fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${currentUserId}`, {
@@ -1095,7 +1095,7 @@ export default function App() {
                       onChange={(e) => setProfilePhone(e.target.value)} 
                       placeholder="+79991112233"
                     />
-                    {/* Кнопка верификации телефона */}
+                    {/* кнопка верификации телефона */}
                     {profilePhone && !user.isPhoneVerified && !isProfileSmsSent && (
                       <Button 
                         type="button"
@@ -1197,7 +1197,7 @@ export default function App() {
                   />
                 </Form.Group>
 
-                {/* ИНПУТ ДЛЯ ВЫБОРА ФАЙЛА И ПЕРЕВОДА В BASE64 */}
+                {/* инпут дял выбора файла и перевода в Base64 */}
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold text-secondary">Аватарка профиля</Form.Label>
                   <Form.Control 
@@ -1208,7 +1208,7 @@ export default function App() {
                       if (file) {
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          setProfileAvatar(reader.result); // Записывает строку Base64 в стейт
+                          setProfileAvatar(reader.result); // записывает строку Base64 в стейт
                         };
                         reader.readAsDataURL(file);
                       }
@@ -1246,7 +1246,7 @@ export default function App() {
               </Form>
             </div>
 
-              {/* Управление публикациями */}
+              {/* управление публикациями */}
               <div className="card p-4 shadow-sm">
                 <h3 className="fw-bold mb-4 text-white">Мои объявления ({userPets.length})</h3>
                 {userPets.length === 0 ? (
@@ -1262,18 +1262,18 @@ export default function App() {
                             <p className="small text-muted mb-2">{pet.breed}</p>
                             
                             <div className="d-flex gap-2 mt-3">
-                              {/* Кнопка Редактировать */}
+                              {/* кнопка Редактировать */}
                               <button 
                                 className="btn btn-outline-primary btn-sm flex-grow-1" 
                                 onClick={() => {
                                   console.log("Кнопка нажата, редактируем:", pet);
-                                  // Вызываем функцию, которая заполняет форму
+                                  // вызываем функцию, которая заполняет форму
                                   handleEditPet(pet); 
                                 }}
                               >
                                 Редактировать
                               </button>
-                              {/* Кнопка Удалить */}
+                              {/* кнопка Удалить */}
                               <button 
                                 className="btn btn-outline-danger btn-sm flex-grow-1" 
                                 onClick={() => handleDeletePet(pet._id)}
@@ -1291,7 +1291,7 @@ export default function App() {
             </div>
         )}
 
-        {/* ВКЛАДКА 4: ПУБЛИЧНАЯ СТРАНИЦА ДРУГОГО ПОЛЬЗОВАТЕЛЯ */}
+        {/* публичная страница другого пользователя */}
         {page === 'owner_profile' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
             <button className="btn btn-outline-secondary btn-sm mb-4 px-3" onClick={() => setPage('map')}>
@@ -1398,7 +1398,7 @@ export default function App() {
 
       </Container>
 
-      {/* --- МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
+      {/* модальное окно анкеты питомца */}
       {activeModalPet && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }} tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -1522,7 +1522,7 @@ export default function App() {
       )}
       {isEditModalOpen && (
         <>
-          {/* 1. Темный фон (подложка) */}
+          {/* темный фон (подложка) */}
           <div 
             className="modal-backdrop show" 
             style={{ 
@@ -1536,7 +1536,7 @@ export default function App() {
             }} 
           />
 
-          {/* 2. Контейнер для центрирования окна */}
+          {/* контейнер для центрирования окна */}
           <div 
             style={{ 
               position: 'fixed', 
@@ -1551,7 +1551,7 @@ export default function App() {
               pointerEvents: 'none' 
             }}
           >
-            {/* 3. Само окно (непрозрачное) */}
+            {/* само окно (непрозрачное) */}
             <div 
               className="bg-white p-4 rounded-4 shadow-lg" 
               style={{ 
@@ -1584,9 +1584,9 @@ export default function App() {
                 const result = await res.json();
                 if (result.success) {
                   alert('Сохранено!');
-                  // 1. Закрываем модальное окно
+                  // закрываем модальное окно
                   setIsEditModalOpen(false);
-                  // 2. Обновляем список питомцев в памяти, чтобы изменения отобразились сразу
+                  // обновляем список питомцев в памяти, чтобы изменения отобразились сразу
                   // находим старого питомца и заменяем его новым из ответа сервера
                   setPets(prevPets => prevPets.map(p => 
                     p._id === editingPet._id ? { ...p, ...payload } : p
@@ -1619,6 +1619,21 @@ export default function App() {
                   </Form.Select>
                 </Form.Group>
 
+                <Form.Group className="mb-4">
+                  <Form.Label>Местоположение на карте (нажмите, чтобы изменить)</Form.Label>
+                  <div style={{ height: '300px', width: '100%', borderRadius: '15px', overflow: 'hidden' }}>
+                    <MapContainer 
+                      key={`${lat}-${lng}`} // Это заставит карту перерисоваться при изменении координат
+                      center={[lat || 55.75, lng || 37.61]} 
+                      zoom={13} 
+                      style={{ height: '100%', width: '100%' }}
+                    >
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <LocationMarker lat={lat} lng={lng} setLat={setLat} setLng={setLng} />
+                    </MapContainer>
+                  </div>
+                </Form.Group>
+
                 <div className="d-flex gap-2">
                   <Button variant="secondary" onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
                   <Button variant="primary" type="submit">Сохранить</Button>
@@ -1630,4 +1645,16 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function LocationMarker({ lat, lng, setLat, setLng }) {
+  useMapEvents({
+    click(e) {
+      setLat(e.latlng.lat.toFixed(6));
+      setLng(e.latlng.lng.toFixed(6));
+    },
+  });
+
+  // Если координаты есть, рисуем маркер
+  return lat && lng ? <Marker position={[parseFloat(lat), parseFloat(lng)]} /> : null;
 }
