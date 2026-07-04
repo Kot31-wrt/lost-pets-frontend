@@ -809,207 +809,296 @@ export default function App() {
 
         {/* ВКЛАДКА 3: ЛИЧНЫЙ КАБИНЕТ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ */}
         {page === 'profile' && (
-          <div className="row g-4">
-            <div className="col-md-4">
-              <div className="p-4 bg-white rounded-4 border border-light shadow-sm text-center">
-                {user.avatar || profileAvatar ? (
-                  <img 
-                    src={user.avatar || profileAvatar} 
-                    alt={user.name} 
-                    className="rounded-circle object-fit-cover mb-3 shadow-sm" 
-                    style={{ width: '90px', height: '90px', border: '2px solid var(--bs-primary)' }} 
-                  />
-                ) : (
-                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold shadow-sm" style={{ width: '90px', height: '90px', fontSize: '36px' }}>
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          <div className="container py-4">
+            <div className="row g-4">
+              {/* Карточка пользователя */}
+              <div className="col-md-4">
+                <div className="p-4 bg-white rounded-4 border border-light shadow-sm text-center">
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.name} 
+                      className="rounded-circle object-fit-cover mb-3 shadow-sm" 
+                      style={{ width: '100px', height: '100px', border: '3px solid var(--bs-primary)' }} 
+                    />
+                  ) : (
+                    <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold shadow-sm" style={{ width: '100px', height: '100px', fontSize: '40px' }}>
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
+                  <h4 className="fw-bold mb-1 text-dark">{user.name}</h4>
+                  <p className="text-muted small mb-3">Участник сообщества</p>
+                  
+                  <button 
+                    className="btn btn-primary w-100 mb-2 py-2 fw-semibold rounded-3 shadow-sm"
+                    onClick={() => {
+                      // Заполняем стейты формы текущими данными перед переходом
+                      setProfileName(user.name || '');
+                      setProfilePhone(user.phone || '');
+                      setProfileTelegram(user.telegram || '');
+                      setProfileWhatsapp(user.whatsapp || '');
+                      setProfileBio(user.bio || '');
+                      setProfileAvatar(user.avatar || '');
+                      setProfileError('');
+                      setProfileSuccess('');
+                      setPage('edit-profile'); // Переходим на страницу редактирования
+                    }}
+                  >
+                    ✏️ Редактировать профиль
+                  </button>
+                  
+                  <button className="btn btn-outline-danger btn-sm w-100 py-2 fw-semibold rounded-3" onClick={handleLogout}>
+                    🔑 Выйти из аккаунта
+                  </button>
+                </div>
+              </div>
+
+              {/* Контактная информация и Объявления */}
+              <div className="col-md-8">
+                <div className="p-4 bg-white rounded-4 border border-light shadow-sm mb-4">
+                  <h5 className="fw-bold text-dark mb-3">📇 Контактная информация</h5>
+                  <div className="row g-3">
+                    <div className="col-sm-6">
+                      <span className="text-secondary small">Email:</span>
+                      <p className="fw-semibold text-dark mb-0">{user.email}</p>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-secondary small">Телефон:</span>
+                      <p className="fw-semibold text-dark mb-0">{user.phone || <span className="text-muted fw-normal">Не указан</span>}</p>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-secondary small">Telegram:</span>
+                      <p className="fw-semibold text-dark mb-0">
+                        {user.telegram ? (
+                          <a href={`https://t.me/${user.telegram.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-decoration-none">
+                            {user.telegram.startsWith('@') ? user.telegram : `@${user.telegram}`}
+                          </a>
+                        ) : <span className="text-muted fw-normal">Не указан</span>}
+                      </p>
+                    </div>
+                    <div className="col-sm-6">
+                      <span className="text-secondary small">WhatsApp:</span>
+                      <p className="fw-semibold text-dark mb-0">{user.whatsapp || <span className="text-muted fw-normal">Не указан</span>}</p>
+                    </div>
+                    <div className="col-12">
+                      <span className="text-secondary small">О себе:</span>
+                      <p className="text-dark bg-light p-3 rounded-3 mb-0" style={{ whiteSpace: 'pre-line' }}>
+                        {user.bio || <span className="text-muted italic">Информация отсутствует</span>}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <h4 className="fw-bold mb-1 text-dark">{user.name}</h4>
-                <p className="text-muted small mb-3">Участник сообщества</p>
-                <hr className="my-3" />
-                
-                {/* ВЫВОД АКТУАЛЬНЫХ ДАННЫХ ИЗ STATE USER */}
-                <div className="text-start mb-4 small text-secondary">
-                  <p className="mb-2"><strong>📧 Email:</strong> <br />{user.email}</p>
-                  <p className="mb-2"><strong>📞 Телефон:</strong> <br />{user.phone || <span className="text-danger">не указан</span>}</p>
-                  <p className="mb-2"><strong>✈️ Telegram:</strong> <br />{user.telegram || <span className="text-danger">не указан</span>}</p>
-                  <p className="mb-2"><strong>💬 WhatsApp:</strong> <br />{user.whatsapp || <span className="text-danger">не указан</span>}</p>
-                  <p className="mb-0"><strong>📝 О себе:</strong> <br /><span className="text-dark">{user.bio || '—'}</span></p>
                 </div>
 
-                <button className="btn btn-outline-danger btn-sm w-100 py-2 fw-semibold" onClick={handleLogout}>🚪 Выйти из профиля</button>
+                {/* Мои объявления */}
+                <h5 className="fw-bold text-dark mb-3">🐾 Мои объявления ({userPets.length})</h5>
+                {userPets.length === 0 ? (
+                  <div className="alert alert-light border text-center py-4 rounded-4">
+                    Вы еще не добавили ни одного объявления.
+                  </div>
+                ) : (
+                  <div className="row row-cols-1 row-cols-sm-2 g-3">
+                    {userPets.map(pet => (
+                      <div className="col" key={pet._id}>
+                        <PetCard 
+                          pet={pet} 
+                          onFocusOnMap={() => {}} 
+                          onDelete={handleDeletePet} 
+                          currentUserId={user.id || user._id} 
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            
-            <div className="col-md-8">
-              <div className="p-4 bg-white rounded-4 border border-light shadow-sm mb-4">
-                <h4 className="mb-4 fw-bold text-dark">📝 Редактировать профиль</h4>
-  
-                {profileError && <div className="alert alert-danger">{profileError}</div>}
-                {profileSuccess && <div className="alert alert-success">{profileSuccess}</div>}
+          </div>
+        )}
 
-                <Form onSubmit={(e) => {
-                  e.preventDefault();
-                  setProfileError('');
-                  setProfileSuccess('');
+        {/* ================= ОТДЕЛЬНАЯ СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ ================= */}
+        {page === 'edit-profile' && (
+          <div className="container py-4" style={{ maxWidth: '600px' }}>
+            <div className="d-flex align-items-center mb-4">
+              <button 
+                className="btn btn-outline-secondary btn-sm me-3 rounded-circle d-flex align-items-center justify-content-center" 
+                style={{ width: '35px', height: '35px' }}
+                onClick={() => setPage('profile')}
+              >
+                ←
+              </button>
+              <h3 className="mb-0 fw-bold text-dark">📝 Редактирование профиля</h3>
+            </div>
 
-                  // Проверка телефона перед отправкой СМС
-                  if (profilePhone && profilePhone !== (user.phone || '')) {
-                    if (!phoneRegex.test(profilePhone)) {
-                      setProfileError('Неверный формат номера телефона. Используйте +79991112233');
-                      return;
-                    }
-                    if (!isProfileSmsSent) {
-                      fetch('https://lost-pets-api-gkoe.onrender.com/api/users/send-phone-code', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: profilePhone, userId: user.id || user._id })
-                      })
-                      .then(res => res.json())
-                      .then(data => {
-                        if (data.success) {
-                          setIsProfileSmsSent(true);
-                          setProfileSuccess('Код подтверждения отправлен в СМС.');
-                        } else {
-                          setProfileError(data.message);
-                        }
-                      })
-                      .catch(() => setProfileError('Ошибка отправки СМС-кода'));
-                      return;
-                    }
+            <div className="card shadow-sm border-0 rounded-4 p-4 bg-white">
+              {profileError && <Alert variant="danger" className="rounded-3">{profileError}</Alert>}
+              {profileSuccess && <Alert variant="success" className="rounded-3">{profileSuccess}</Alert>}
+
+              <Form onSubmit={(e) => {
+                e.preventDefault();
+                setProfileError('');
+                setProfileSuccess('');
+
+                // СМС-валидация при изменении телефона
+                if (profilePhone && profilePhone !== (user.phone || '')) {
+                  if (!phoneRegex.test(profilePhone)) {
+                    setProfileError('Неверный формат номера телефона. Используйте +79991112233');
+                    return;
                   }
+                  if (!isProfileSmsSent) {
+                    fetch('https://lost-pets-api-gkoe.onrender.com/api/users/send-phone-code', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ phone: profilePhone, userId: user.id || user._id })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (data.success) {
+                        setIsProfileSmsSent(true);
+                        setProfileSuccess('Код подтверждения отправлен в СМС.');
+                      } else {
+                        setProfileError(data.message);
+                      }
+                    })
+                    .catch(() => setProfileError('Ошибка отправки СМС-кода'));
+                    return;
+                  }
+                }
 
-                  // Отправка ВСЕХ полей на сервер
-                  const updatedData = {
-                    name: profileName,
-                    phone: profilePhone,
-                    whatsapp: profileWhatsapp,
-                    telegram: profileTelegram,
-                    bio: profileBio,
-                    avatar: profileAvatar,
-                    code: profileSmsCode 
-                  };
+                // Сохранение данных
+                const updatedData = {
+                  name: profileName,
+                  phone: profilePhone,
+                  whatsapp: profileWhatsapp,
+                  telegram: profileTelegram,
+                  bio: profileBio,
+                  avatar: profileAvatar,
+                  code: profileSmsCode 
+                };
 
-                  const currentUserId = user.id || user._id;
+                const currentUserId = user.id || user._id;
 
-                  fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${currentUserId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedData)
-                  })
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data.success) {
-                      setProfileSuccess('Профиль успешно обновлен!');
-                      const updatedUserForStorage = {
-                        ...data.user,
-                        id: data.user.id || data.user._id
-                      };
-                      localStorage.setItem('petUser', JSON.stringify(updatedUserForStorage));
-                      setUser(updatedUserForStorage);
-                      setIsProfileSmsSent(false);
-                      setProfileSmsCode('');
-                    } else {
-                      setProfileError(data.message);
-                    }
-                  })
-                  .catch(() => setProfileError('Ошибка обновления данных на сервере'));
-                }}>
+                fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${currentUserId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatedData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.success) {
+                    setProfileSuccess('Профиль успешно обновлен!');
+                    const updatedUserForStorage = {
+                      ...data.user,
+                      id: data.user.id || data.user._id
+                    };
+                    localStorage.setItem('petUser', JSON.stringify(updatedUserForStorage));
+                    setUser(updatedUserForStorage);
+                    setIsProfileSmsSent(false);
+                    setProfileSmsCode('');
+                    
+                    // Через 1.5 секунды после успеха автоматически возвращаем на страницу профиля
+                    setTimeout(() => {
+                      setPage('profile');
+                    }, 1500);
+                  } else {
+                    setProfileError(data.message);
+                  }
+                })
+                .catch(() => setProfileError('Ошибка обновления данных на сервере'));
+              }}>
 
-                  {/* Поле Имя */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary">Ваше имя</Form.Label>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold text-secondary">Ваше имя</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    value={profileName} 
+                    onChange={(e) => setProfileName(e.target.value)} 
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold text-secondary">📞 Номер телефона</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    value={profilePhone} 
+                    onChange={(e) => setProfilePhone(e.target.value)} 
+                    placeholder="+79991112233"
+                  />
+                  <Form.Text className="text-muted">При изменении номера потребуется СМС-код.</Form.Text>
+                </Form.Group>
+
+                {isProfileSmsSent && (
+                  <Form.Group className="mb-3 p-3 bg-light rounded-3 border border-warning">
+                    <Form.Label className="fw-bold text-warning">🔑 Введите код из СМС</Form.Label>
                     <Form.Control 
                       type="text" 
-                      value={profileName} 
-                      onChange={(e) => setProfileName(e.target.value)} 
-                      placeholder="Введите имя"
+                      value={profileSmsCode} 
+                      onChange={(e) => setProfileSmsCode(e.target.value)} 
+                      placeholder="Четырехзначный код"
                       required
                     />
                   </Form.Group>
+                )}
 
-                  {/* Поле Телефон */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary">📞 Номер телефона</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      value={profilePhone} 
-                      onChange={(e) => setProfilePhone(e.target.value)} 
-                      placeholder="+79991112233"
-                    />
-                    <Form.Text className="text-muted">
-                      При изменении номера потребуется СМС-подтверждение.
-                    </Form.Text>
-                  </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold text-secondary">✈️ Ник в Telegram</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    value={profileTelegram} 
+                    onChange={(e) => setProfileTelegram(e.target.value)} 
+                    placeholder="@username"
+                  />
+                </Form.Group>
 
-                  {/* Поле ввода СМС-кода (показывается только если СМС отправлено) */}
-                  {isProfileSmsSent && (
-                    <Form.Group className="mb-3 p-3 bg-light rounded-3 border border-warning">
-                      <Form.Label className="fw-bold text-warning">🔑 Введите код из СМС</Form.Label>
-                      <Form.Control 
-                        type="text" 
-                        value={profileSmsCode} 
-                        onChange={(e) => setProfileSmsCode(e.target.value)} 
-                        placeholder="Четырехзначный код"
-                        required
-                      />
-                    </Form.Group>
-                  )}
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold text-secondary">💬 Номер WhatsApp</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    value={profileWhatsapp} 
+                    onChange={(e) => setProfileWhatsapp(e.target.value)} 
+                    placeholder="+79991112233"
+                  />
+                </Form.Group>
 
-                  {/* Поле Telegram */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary">✈️ Ник в Telegram</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      value={profileTelegram} 
-                      onChange={(e) => setProfileTelegram(e.target.value)} 
-                      placeholder="@username или ссылка"
-                    />
-                  </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold text-secondary">🖼️ Ссылка на аватарку (URL)</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    value={profileAvatar} 
+                    onChange={(e) => setProfileAvatar(e.target.value)} 
+                    placeholder="https://example.com/photo.jpg"
+                  />
+                </Form.Group>
 
-                  {/* Поле WhatsApp */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary">💬 Номер WhatsApp</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      value={profileWhatsapp} 
-                      onChange={(e) => setProfileWhatsapp(e.target.value)} 
-                      placeholder="Например, +79991112233"
-                    />
-                  </Form.Group>
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-semibold text-secondary">📝 О себе</Form.Label>
+                  <Form.Control 
+                    as="textarea" 
+                    rows={4} 
+                    value={profileBio} 
+                    onChange={(e) => setProfileBio(e.target.value)} 
+                    placeholder="Расскажите о себе..."
+                  />
+                </Form.Group>
 
-                  {/* Поле Ссылка на Аватар */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold text-secondary">🖼️ Ссылка на аватарку (URL)</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      value={profileAvatar} 
-                      onChange={(e) => setProfileAvatar(e.target.value)} 
-                      placeholder="https://example.com/avatar.jpg"
-                    />
-                  </Form.Group>
-
-                  {/* Поле О себе */}
-                  <Form.Group className="mb-4">
-                    <Form.Label className="fw-semibold text-secondary">📝 О себе / Описание</Form.Label>
-                    <Form.Control 
-                      as="textarea" 
-                      rows={3} 
-                      value={profileBio} 
-                      onChange={(e) => setProfileBio(e.target.value)} 
-                      placeholder="Расскажите немного о себе..."
-                    />
-                  </Form.Group>
-
+                <div className="d-flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline-secondary" 
+                    className="w-50 py-2 fw-bold rounded-3"
+                    onClick={() => setPage('profile')}
+                  >
+                    Отмена
+                  </Button>
                   <Button 
                     type="submit" 
                     variant={isProfileSmsSent ? "warning" : "primary"} 
-                    className="w-100 fw-bold py-2 rounded-3 shadow-sm"
+                    className="w-50 py-2 fw-bold rounded-3 shadow-sm"
                   >
-                    {isProfileSmsSent ? '✅ Подтвердить код и сохранить профиль' : '💾 Сохранить изменения'}
+                    {isProfileSmsSent ? 'Подтвердить и сохранить' : 'Сохранить'}
                   </Button>
-                </Form>
-              </div>
+                </div>
+              </Form>
+            </div>
 
               <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
                 <h3 className="fw-bold mb-4 text-dark">📋 Управление публикациями ({userPets.length})</h3>
@@ -1036,7 +1125,6 @@ export default function App() {
                 )}
               </div>
             </div>
-          </div>
         )}
 
         {/* ВКЛАДКА 4: ПУБЛИЧНАЯ СТРАНИЦА ДРУГОГО ПОЛЬЗОВАТЕЛЯ */}
