@@ -882,7 +882,7 @@ export default function App() {
                         {user.phone && user.isPhoneVerified ? (
                           <span>{user.phone} <span className="badge bg-success text-white ms-1">Подтвержден</span></span>
                         ) : user.phone ? (
-                          <span className="text-warning fw-normal">Нажмите Редактировать чтобы подтвердить номер</span>
+                          <span className="text-warning fw-normal">Нажмите "Редактировать" чтобы подтвердить номер</span>
                         ) : (
                           <span className="text-muted fw-normal">Не указан</span>
                         )}
