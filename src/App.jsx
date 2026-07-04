@@ -832,7 +832,6 @@ export default function App() {
                   <button 
                     className="btn btn-primary w-100 mb-2 py-2 fw-semibold rounded-3 shadow-sm"
                     onClick={() => {
-                      // Заполняем стейты формы текущими данными перед переходом
                       setProfileName(user.name || '');
                       setProfilePhone(user.phone || '');
                       setProfileTelegram(user.telegram || '');
@@ -841,10 +840,12 @@ export default function App() {
                       setProfileAvatar(user.avatar || '');
                       setProfileError('');
                       setProfileSuccess('');
-                      setPage('edit-profile'); // Переходим на страницу редактирования
+                      setIsProfileSmsSent(false);
+                      setProfileSmsCode('');
+                      setPage('edit-profile');
                     }}
                   >
-                    ✏️ Редактировать профиль
+                    Редактировать профиль
                   </button>
                   
                   <button className="btn btn-outline-danger btn-sm w-100 py-2 fw-semibold rounded-3" onClick={handleLogout}>
@@ -853,10 +854,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Контактная информация и Объявления */}
+              {/* Контактная информация */}
               <div className="col-md-8">
                 <div className="p-4 bg-white rounded-4 border border-light shadow-sm mb-4">
-                  <h5 className="fw-bold text-dark mb-3">📇 Контактная информация</h5>
+                  <h5 className="fw-bold text-dark mb-3">Контактная информация</h5>
                   <div className="row g-3">
                     <div className="col-sm-6">
                       <span className="text-secondary small">Email:</span>
@@ -864,7 +865,15 @@ export default function App() {
                     </div>
                     <div className="col-sm-6">
                       <span className="text-secondary small">Телефон:</span>
-                      <p className="fw-semibold text-dark mb-0">{user.phone || <span className="text-muted fw-normal">Не указан</span>}</p>
+                      <p className="fw-semibold text-dark mb-0">
+                        {user.phone && user.isPhoneVerified ? (
+                          <span>{user.phone} <span className="badge bg-success text-white ms-1">Подтвержден</span></span>
+                        ) : user.phone ? (
+                          <span className="text-warning fw-normal">Нажмите Редактировать чтобы подтвердить номер</span>
+                        ) : (
+                          <span className="text-muted fw-normal">Не указан</span>
+                        )}
+                      </p>
                     </div>
                     <div className="col-sm-6">
                       <span className="text-secondary small">Telegram:</span>
@@ -923,7 +932,7 @@ export default function App() {
                 style={{ width: '35px', height: '35px' }}
                 onClick={() => setPage('profile')}
               >
-                ←
+                &larr;
               </button>
               <h3 className="mb-0 fw-bold text-dark">Редактирование профиля</h3>
             </div>
@@ -937,41 +946,13 @@ export default function App() {
                 setProfileError('');
                 setProfileSuccess('');
 
-                // СМС-валидация при изменении телефона
-                if (profilePhone && profilePhone !== (user.phone || '')) {
-                  if (!phoneRegex.test(profilePhone)) {
-                    setProfileError('Неверный формат номера телефона. Используйте +79991112233');
-                    return;
-                  }
-                  if (!isProfileSmsSent) {
-                    fetch('https://lost-pets-api-gkoe.onrender.com/api/users/send-phone-code', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ phone: profilePhone, userId: user.id || user._id })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                      if (data.success) {
-                        setIsProfileSmsSent(true);
-                        setProfileSuccess('Код подтверждения отправлен в СМС.');
-                      } else {
-                        setProfileError(data.message);
-                      }
-                    })
-                    .catch(() => setProfileError('Ошибка отправки СМС-кода'));
-                    return;
-                  }
-                }
-
-                // Сохранение данных
                 const updatedData = {
                   name: profileName,
                   phone: profilePhone,
                   whatsapp: profileWhatsapp,
                   telegram: profileTelegram,
                   bio: profileBio,
-                  avatar: profileAvatar,
-                  code: profileSmsCode 
+                  avatar: profileAvatar
                 };
 
                 const currentUserId = user.id || user._id;
@@ -984,20 +965,13 @@ export default function App() {
                 .then(res => res.json())
                 .then(data => {
                   if (data.success) {
-                    setProfileSuccess('Профиль успешно обновлен!');
+                    setProfileSuccess('Изменения успешно сохранены!');
                     const updatedUserForStorage = {
                       ...data.user,
                       id: data.user.id || data.user._id
                     };
                     localStorage.setItem('petUser', JSON.stringify(updatedUserForStorage));
                     setUser(updatedUserForStorage);
-                    setIsProfileSmsSent(false);
-                    setProfileSmsCode('');
-                    
-                    // Через 1.5 секунды после успеха автоматически возвращаем на страницу профиля
-                    setTimeout(() => {
-                      setPage('profile');
-                    }, 1500);
                   } else {
                     setProfileError(data.message);
                   }
@@ -1016,27 +990,96 @@ export default function App() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">Номер телефона</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    value={profilePhone} 
-                    onChange={(e) => setProfilePhone(e.target.value)} 
-                    placeholder="+79991112233"
-                  />
-                  <Form.Text className="text-muted">При изменении номера потребуется SМS-код.</Form.Text>
+                  <Form.Label className="fw-semibold text-secondary">
+                    Номер телефона 
+                    {user.phone && user.isPhoneVerified && <span className="text-success small ms-2">Подтвержден</span>}
+                    {user.phone && !user.isPhoneVerified && <span className="text-warning small ms-2">Не подтвержден</span>}
+                  </Form.Label>
+                  
+                  <div className="d-flex gap-2">
+                    <Form.Control 
+                      type="text" 
+                      value={profilePhone} 
+                      onChange={(e) => setProfilePhone(e.target.value)} 
+                      placeholder="+79991112233"
+                    />
+                    {profilePhone && profilePhone === user.phone && !user.isPhoneVerified && !isProfileSmsSent && (
+                      <Button 
+                        variant="warning" 
+                        className="fw-bold px-3 text-nowrap"
+                        onClick={() => {
+                          if (!phoneRegex.test(profilePhone)) {
+                            setProfileError('Неверный формат номера. Используйте +79991112233');
+                            return;
+                          }
+                          fetch('https://lost-pets-api-gkoe.onrender.com/api/users/send-phone-code', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phone: profilePhone, userId: user.id || user._id })
+                          })
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.success) {
+                              setIsProfileSmsSent(true);
+                              setProfileSuccess('Код подтверждения отправлен на указанный номер.');
+                            } else {
+                              setProfileError(data.message);
+                            }
+                          })
+                          .catch(() => setProfileError('Ошибка отправки СМС-кода'));
+                        }}
+                      >
+                        Подтвердить номер
+                      </Button>
+                    )}
+                  </div>
+                  <Form.Text className="text-muted">
+                    Пока вы не нажмете кнопку подтверждения, номер телефона скрыт от других пользователей.
+                  </Form.Text>
                 </Form.Group>
 
                 {isProfileSmsSent && (
-                  <Form.Group className="mb-3 p-3 bg-light rounded-3 border border-warning">
-                    <Form.Label className="fw-bold text-warning">Введите код из SМS</Form.Label>
-                    <Form.Control 
-                      type="text" 
-                      value={profileSmsCode} 
-                      onChange={(e) => setProfileSmsCode(e.target.value)} 
-                      placeholder="Четырехзначный код"
-                      required
-                    />
-                  </Form.Group>
+                  <div className="mb-3 p-3 bg-light rounded-3 border border-warning">
+                    <Form.Label className="fw-bold text-warning">Введите код из СМС</Form.Label>
+                    <div className="d-flex gap-2">
+                      <Form.Control 
+                        type="text" 
+                        value={profileSmsCode} 
+                        onChange={(e) => setProfileSmsCode(e.target.value)} 
+                        placeholder="Четырехзначный код"
+                      />
+                      <Button 
+                        variant="success"
+                        className="fw-bold px-4"
+                        onClick={() => {
+                          fetch('https://lost-pets-api-gkoe.onrender.com/api/users/verify-phone-code', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: user.id || user._id, phone: profilePhone, code: profileSmsCode })
+                          })
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.success) {
+                              setProfileSuccess('Номер телефона успешно верифицирован!');
+                              const updatedUserForStorage = {
+                                ...data.user,
+                                id: data.user.id || data.user._id
+                              };
+                              localStorage.setItem('petUser', JSON.stringify(updatedUserForStorage));
+                              setUser(updatedUserForStorage);
+                              setIsProfileSmsSent(false);
+                              setProfileSmsCode('');
+                            } else {
+                              setProfileError(data.message);
+                            }
+                          })
+                          .catch(() => setProfileError('Ошибка при проверке кода'));
+                        }}
+                      >
+                        ОК
+                      </Button>
+                    </div>
+                  </div>
                 )}
 
                 <Form.Group className="mb-3">
@@ -1065,7 +1108,6 @@ export default function App() {
                     type="text" 
                     value={profileAvatar} 
                     onChange={(e) => setProfileAvatar(e.target.value)} 
-                    placeholder="https://example.com/photo.jpg"
                   />
                 </Form.Group>
 
@@ -1076,7 +1118,6 @@ export default function App() {
                     rows={4} 
                     value={profileBio} 
                     onChange={(e) => setProfileBio(e.target.value)} 
-                    placeholder="Расскажите о себе..."
                   />
                 </Form.Group>
 
@@ -1087,14 +1128,14 @@ export default function App() {
                     className="w-50 py-2 fw-bold rounded-3"
                     onClick={() => setPage('profile')}
                   >
-                    Отмена
+                    Назад в профиль
                   </Button>
                   <Button 
                     type="submit" 
-                    variant={isProfileSmsSent ? "warning" : "primary"} 
+                    variant="primary" 
                     className="w-50 py-2 fw-bold rounded-3 shadow-sm"
                   >
-                    {isProfileSmsSent ? 'Подтвердить и сохранить' : 'Сохранить'}
+                    Сохранить данные
                   </Button>
                 </div>
               </Form>
