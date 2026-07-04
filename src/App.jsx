@@ -274,6 +274,27 @@ export default function App() {
     }
   }, [page, user]);
 
+  useEffect(() => {
+    if (editingPet) {
+      setName(editingPet.name || '');
+      setBreed(editingPet.breed || '');
+      setDescription(editingPet.description || '');
+      setStatus(editingPet.status || 'потерялся');
+      setImage(editingPet.image || '');
+      setLat(editingPet.lat || '');
+      setLng(editingPet.lng || '');
+    } else {
+      // Очистка при создании нового объявления
+      setName('');
+      setBreed('');
+      setDescription('');
+      setStatus('потерялся');
+      setImage('');
+      setLat('');
+      setLng('');
+    }
+  }, [editingPet]);
+
   const openOwnerProfile = (ownerId) => {
     if (!ownerId) return;
     setSelectedOwnerId(ownerId);
@@ -364,16 +385,9 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
-    setEditingPet(pet);
-    setName(pet.name);
-    setBreed(pet.breed);
-    setDescription(pet.description);
-    setStatus(pet.status);
-    setImage(pet.image);
-    setLat(pet.lat);
-    setLng(pet.lng);
-    
-    setIsEditModalOpen(true); // Открываем модальное окно
+    console.log('Редактируем питомца:', pet);
+    setEditingPet(pet); // Это вызовет useEffect, описанный выше
+    setPage('add-pet');  // Переход на форму
   };
 
   const handleSendResetCode = () => {
