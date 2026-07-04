@@ -422,7 +422,7 @@ export default function App() {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
         <div className="p-5 bg-white rounded-4 border-0 shadow-lg" style={{ width: '100%', maxWidth: '440px' }}>
-          <h2 className="text-center fw-bold mb-2">🐾 LOST & FOUND</h2>
+          <h2 className="text-center fw-bold mb-2">LOST & FOUND</h2>
           <p className="text-center text-muted small mb-4">Сервис поиска потерянных домашних животных</p>
           
           <h5 className="text-center fw-semibold mb-4 text-secondary">
@@ -521,13 +521,13 @@ export default function App() {
       {/* СОВРЕМЕННЫЙ НАВБАР */}
       <Navbar fixed="top" expand="lg" className="shadow-sm">
         <Container>
-          <Navbar.Brand href="#" className="fw-bold fs-4">🐾 Поиск Питомцев</Navbar.Brand>
+          <Navbar.Brand href="#" className="fw-bold fs-4">LOST & FOUND</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Nav.Link active={page === 'map'} onClick={() => setPage('map')}>🗺️ Карта и поиск</Nav.Link>
-              <Nav.Link active={page === 'add'} onClick={() => setPage('add')}>➕ Добавить объявление</Nav.Link>
-              <Nav.Link active={page === 'profile'} onClick={() => setPage('profile')}>👤 Кабинет ({user?.name || 'Пользователь'})</Nav.Link>
+              <Nav.Link active={page === 'map'} onClick={() => setPage('map')}>Карта и поиск</Nav.Link>
+              <Nav.Link active={page === 'add'} onClick={() => setPage('add')}>Добавить объявление</Nav.Link>
+              <Nav.Link active={page === 'profile'} onClick={() => setPage('profile')}>Кабинет ({user?.name || 'Пользователь'})</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -540,7 +540,7 @@ export default function App() {
         {/* ВКЛАДКА 1: КАРТА И ЛЕНТА ОБЪЯВЛЕНИЙ */}
         {page === 'map' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
-            <h2 className="fw-bold mb-4 text-dark">🗺️ Карта активности</h2>
+            <h2 className="fw-bold mb-4 text-dark">Карта активности</h2>
             
             <div className="row g-3 mb-4 p-3 rounded-4" style={{ background: '#F9FAFB' }}>
               <div className="col-md-6">
@@ -550,7 +550,7 @@ export default function App() {
               <div className="col-md-6">
                 <label className="form-label fw-semibold text-muted small">Категория объявлений</label>
                 <select className="form-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                  <option value="все">🔍 Все домашние животные</option>
+                  <option value="все">Все домашние животные</option>
                   <option value="потерялся">💔 Только пропавшие питомцы</option>
                   <option value="найден">💚 Только найденные питомцы</option>
                 </select>
@@ -638,7 +638,7 @@ export default function App() {
                                 }
                               }}
                             >
-                              🔍 Подробнее
+                              Подробнее
                             </button>
                           </div>
                         </Popup>
@@ -707,13 +707,13 @@ export default function App() {
         {/* ВКЛАДКА 2: ПОДАТЬ ОБЪЯВЛЕНИЕ */}
         {page === 'add' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm" style={{ maxWidth: '720px', margin: '0 auto' }}>
-            <h2 className="fw-bold mb-2 text-center text-dark">➕ Новое объявление</h2>
+            <h2 className="fw-bold mb-2 text-center text-dark">Новое объявление</h2>
             <p className="text-muted text-center small mb-4">Заполните анкету, чтобы опубликовать карточку питомца на карте</p>
             
             <form onSubmit={(e) => {
               e.preventDefault();
               if (!lat || !lng) {
-                alert('⚠️ Пожалуйста, зафиксируйте точку встречи на карте!');
+                alert('Пожалуйста, зафиксируйте точку встречи на карте!');
                 return;
               }
               const newPetData = { status, name, breed, description, image, lat: parseFloat(lat), lng: parseFloat(lng), userId: user?.id };
@@ -730,7 +730,7 @@ export default function App() {
                   setName(''); setBreed(''); setDescription(''); setLat(''); setLng(''); setImage(''); setAddressSearch('');
                   setPage('map');
                 } else {
-                  alert(`⚠️ Не удалось сохранить: ${data.message || 'Ошибка сервера'}`);
+                  alert(`Не удалось сохранить: ${data.message || 'Ошибка сервера'}`);
                 }
               })
               .catch(err => {
@@ -959,16 +959,17 @@ export default function App() {
                 setProfileError('');
                 setProfileSuccess('');
 
+                const currentUserId = user.id || user._id;
+
+                // Отправляем обычный JSON с независимыми полями
                 const updatedData = {
-                  name: profileName,
+                  name: profileName || user.name,
                   phone: profilePhone,
                   whatsapp: profileWhatsapp,
                   telegram: profileTelegram,
                   bio: profileBio,
-                  avatar: profileAvatar
+                  avatar: profileAvatar // Здесь будет строка Base64 или старый URL
                 };
-
-                const currentUserId = user.id || user._id;
 
                 fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${currentUserId}`, {
                   method: 'PUT',
@@ -1016,8 +1017,10 @@ export default function App() {
                       onChange={(e) => setProfilePhone(e.target.value)} 
                       placeholder="+79991112233"
                     />
-                    {profilePhone && profilePhone === user.phone && !user.isPhoneVerified && !isProfileSmsSent && (
+                    {/* Кнопка верификации телефона */}
+                    {profilePhone && !user.isPhoneVerified && !isProfileSmsSent && (
                       <Button 
+                        type="button"
                         variant="warning" 
                         className="fw-bold px-3 text-nowrap"
                         onClick={() => {
@@ -1047,7 +1050,7 @@ export default function App() {
                     )}
                   </div>
                   <Form.Text className="text-muted">
-                    Пока вы не нажмете кнопку подтверждения, номер телефона скрыт от других пользователей.
+                    Пока вы не подтвердите номер, он будет скрыт от других пользователей.
                   </Form.Text>
                 </Form.Group>
 
@@ -1062,6 +1065,7 @@ export default function App() {
                         placeholder="Четырехзначный код"
                       />
                       <Button 
+                        type="button"
                         variant="success"
                         className="fw-bold px-4"
                         onClick={() => {
@@ -1115,12 +1119,22 @@ export default function App() {
                   />
                 </Form.Group>
 
+                {/* ИНПУТ ДЛЯ ВЫБОРА ФАЙЛА И ПЕРЕВОДА В BASE64 */}
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">Ссылка на аватарку (URL)</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">Аватарка профиля</Form.Label>
                   <Form.Control 
-                    type="text" 
-                    value={profileAvatar} 
-                    onChange={(e) => setProfileAvatar(e.target.value)} 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setProfileAvatar(reader.result); // Записывает строку Base64 в стейт
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }} 
                   />
                 </Form.Group>
 
@@ -1185,7 +1199,7 @@ export default function App() {
         {page === 'owner_profile' && (
           <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
             <button className="btn btn-outline-secondary btn-sm mb-4 px-3" onClick={() => setPage('map')}>
-              ⬅️ Назад к общей карте
+              Назад к карте
             </button>
 
             {isLoadingOwner ? (
@@ -1358,7 +1372,7 @@ export default function App() {
                     if (activeModalPet.userId) {
                       openOwnerProfile(activeModalPet.userId);
                     } else {
-                      alert("⚠️ У этого объявления не найден ID автора в базе данных.");
+                      alert("У этого объявления не найден ID автора в базе данных.");
                     }
                   }}
                   onMouseEnter={(e) => {
