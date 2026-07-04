@@ -1227,7 +1227,11 @@ export default function App() {
                               {/* Кнопка Редактировать */}
                               <button 
                                 className="btn btn-outline-primary btn-sm flex-grow-1" 
-                                onClick={() => openEditForm(pet)} // завтра пропишем эту функцию
+                                onClick={() => {
+                                  console.log("Кнопка нажата, редактируем:", pet);
+                                  // Вызываем функцию, которая заполняет форму
+                                  handleEditPet(pet); 
+                                }}
                               >
                                 Редактировать
                               </button>
