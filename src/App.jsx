@@ -385,6 +385,7 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
+    console.log("Кого редактируем:", pet);
     setEditingPet(pet);      // Сохраняем объект целиком
     setName(pet.name);       // Заполняем состояние для инпута
     setBreed(pet.breed);     // Заполняем состояние
@@ -1531,6 +1532,7 @@ export default function App() {
             <h3 className="mb-4">Редактирование</h3>
             <Form onSubmit={async (e) => {
               e.preventDefault();
+              console.log("ID для запроса:", editingPet ? editingPet._id : "ОШИБКА: editingPet пустой!");
               
               const payload = { 
                 name, 
