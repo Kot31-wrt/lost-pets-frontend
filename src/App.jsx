@@ -413,10 +413,10 @@ export default function App() {
           <p className="text-center text-muted small mb-4">Сервис поиска потерянных домашних животных</p>
           
           <h5 className="text-center fw-semibold mb-4 text-secondary">
-            {authMode === 'login' && '🔑 Вход в систему'}
-            {authMode === 'register' && '📝 Создание аккаунта'}
-            {authMode === 'forgot' && '🔒 Восстановление пароля'}
-            {authMode === 'reset' && '🔢 Ввод нового пароля'}
+            {authMode === 'login' && 'Вход в систему'}
+            {authMode === 'register' && 'Создание аккаунта'}
+            {authMode === 'forgot' && 'Восстановление пароля'}
+            {authMode === 'reset' && 'Ввод нового пароля'}
           </h5>
 
           {authError && <Alert variant="danger" className="rounded-3 small">{authError}</Alert>}
@@ -547,7 +547,7 @@ export default function App() {
             <div className="d-flex justify-content-between align-items-center mb-3 px-1">
               <span className="text-muted small">Активных меток: <strong className="text-dark">{Array.isArray(filteredPets) ? filteredPets.length : 0}</strong></span>
               {(searchQuery || statusFilter !== 'все') && (
-                <button className="btn btn-link btn-sm text-decoration-none p-0 fw-semibold text-primary" onClick={() => { setSearchQuery(''); setStatusFilter('все'); }}>🧹 Очистить фильтры</button>
+                <button className="btn btn-link btn-sm text-decoration-none p-0 fw-semibold text-primary" onClick={() => { setSearchQuery(''); setStatusFilter('все'); }}>Очистить фильтры</button>
               )}
             </div>
             
@@ -598,8 +598,8 @@ export default function App() {
                             {pet.status === 'потерялся' && (
                               <div className="alert py-1 px-2 mb-2 border-0 text-center fw-medium" style={{ fontSize: '0.75rem', backgroundColor: isFreshLoss ? '#FFF1F2' : '#FEF3C7', color: isFreshLoss ? '#BE123C' : '#B45309' }}>
                                 {isFreshLoss 
-                                  ? '⏳ Потерян недавно! Зона поиска в радиусе 1 км.' 
-                                  : '⚠️ Прошло более 24 часов. Мог уйти дальше.'}
+                                  ? 'Потерян недавно! Зона поиска в радиусе 1 км.' 
+                                  : 'Прошло более 24 часов. Мог уйти дальше.'}
                               </div>
                             )}
 
@@ -652,7 +652,7 @@ export default function App() {
 
             {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
             <div className="mt-4">
-              <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Последние объявления</h3>
+              <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">Последние объявления</h3>
               {(!Array.isArray(filteredPets) || filteredPets.length === 0) ? (
                 <p className="text-muted text-center py-5 bg-light rounded-4">По вашему запросу объявлений не найдено.</p>
               ) : (
@@ -713,7 +713,7 @@ export default function App() {
               .then(res => res.json())
               .then(data => {
                 if (data.success) {
-                  alert('🎉 Объявление успешно размещено на карте!');
+                  alert('Объявление успешно размещено на карте!');
                   setName(''); setBreed(''); setDescription(''); setLat(''); setLng(''); setImage(''); setAddressSearch('');
                   setPage('map');
                 } else {
@@ -722,7 +722,7 @@ export default function App() {
               })
               .catch(err => {
                 console.error(err);
-                alert('💥 Ошибка сети! Не удалось связаться с сервером. Попробуйте позже.');
+                alert('Ошибка сети! Не удалось связаться с сервером. Попробуйте позже.');
               });
             }}>
               
@@ -763,7 +763,7 @@ export default function App() {
               </div>
 
               <div className="mb-4 p-4 rounded-4" style={{ background: '#F9FAFB' }}>
-                <label className="form-label fw-bold text-primary mb-1">📍 Геолокация происшествия</label>
+                <label className="form-label fw-bold text-primary mb-1">📍 Геолокация потери</label>
                 <p className="text-muted small mb-3">Используйте умный текстовый поиск или кликните по mini-карте вручную.</p>
                 
                 <div className="input-group mb-3">
@@ -795,14 +795,14 @@ export default function App() {
 
                 <div className="text-center">
                   {!lat || !lng ? (
-                    <span className="badge bg-danger p-2">⚠️ Точка локации не зафиксирована</span>
+                    <span className="badge bg-danger text-white fw-bold p-2 shadow-sm">Точка локации не зафиксирована</span>
                   ) : (
-                    <span className="badge bg-success p-2">✅ Точка успешно установлена</span>
+                    <span className="badge bg-success text-white fw-bold p-2 shadow-sm">Точка успешно установлена</span>
                   )}
                 </div>
               </div>
               
-              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">🚀 Разместить объявление</button>
+              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">Разместить объявление</button>
             </form>
           </div>
         )}
@@ -848,7 +848,7 @@ export default function App() {
                   </button>
                   
                   <button className="btn btn-outline-danger btn-sm w-100 py-2 fw-semibold rounded-3" onClick={handleLogout}>
-                    🔑 Выйти из аккаунта
+                    Выйти из аккаунта
                   </button>
                 </div>
               </div>
@@ -890,7 +890,7 @@ export default function App() {
                 </div>
 
                 {/* Мои объявления */}
-                <h5 className="fw-bold text-dark mb-3">🐾 Мои объявления ({userPets.length})</h5>
+                <h5 className="fw-bold text-dark mb-3">Мои объявления ({userPets.length})</h5>
                 {userPets.length === 0 ? (
                   <div className="alert alert-light border text-center py-4 rounded-4">
                     Вы еще не добавили ни одного объявления.
@@ -925,7 +925,7 @@ export default function App() {
               >
                 ←
               </button>
-              <h3 className="mb-0 fw-bold text-dark">📝 Редактирование профиля</h3>
+              <h3 className="mb-0 fw-bold text-dark">Редактирование профиля</h3>
             </div>
 
             <div className="card shadow-sm border-0 rounded-4 p-4 bg-white">
@@ -1016,19 +1016,19 @@ export default function App() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">📞 Номер телефона</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">Номер телефона</Form.Label>
                   <Form.Control 
                     type="text" 
                     value={profilePhone} 
                     onChange={(e) => setProfilePhone(e.target.value)} 
                     placeholder="+79991112233"
                   />
-                  <Form.Text className="text-muted">При изменении номера потребуется СМС-код.</Form.Text>
+                  <Form.Text className="text-muted">При изменении номера потребуется SМS-код.</Form.Text>
                 </Form.Group>
 
                 {isProfileSmsSent && (
                   <Form.Group className="mb-3 p-3 bg-light rounded-3 border border-warning">
-                    <Form.Label className="fw-bold text-warning">🔑 Введите код из СМС</Form.Label>
+                    <Form.Label className="fw-bold text-warning">Введите код из SМS</Form.Label>
                     <Form.Control 
                       type="text" 
                       value={profileSmsCode} 
@@ -1040,7 +1040,7 @@ export default function App() {
                 )}
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">✈️ Ник в Telegram</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">Ник в Telegram</Form.Label>
                   <Form.Control 
                     type="text" 
                     value={profileTelegram} 
@@ -1050,7 +1050,7 @@ export default function App() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">💬 Номер WhatsApp</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">Номер WhatsApp</Form.Label>
                   <Form.Control 
                     type="text" 
                     value={profileWhatsapp} 
@@ -1060,7 +1060,7 @@ export default function App() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary">🖼️ Ссылка на аватарку (URL)</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">Ссылка на аватарку (URL)</Form.Label>
                   <Form.Control 
                     type="text" 
                     value={profileAvatar} 
@@ -1070,7 +1070,7 @@ export default function App() {
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label className="fw-semibold text-secondary">📝 О себе</Form.Label>
+                  <Form.Label className="fw-semibold text-secondary">О себе</Form.Label>
                   <Form.Control 
                     as="textarea" 
                     rows={4} 
@@ -1101,7 +1101,7 @@ export default function App() {
             </div>
 
               <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
-                <h3 className="fw-bold mb-4 text-dark">📋 Управление публикациями ({userPets.length})</h3>
+                <h3 className="fw-bold mb-4 text-dark">Управление публикациями ({userPets.length})</h3>
                 {userPets.length === 0 ? (
                   <p className="text-muted py-4 text-center bg-light rounded-3">Вы еще не опубликовали ни одного активного объявления.</p>
                 ) : (
@@ -1116,7 +1116,7 @@ export default function App() {
                               <p className="card-text text-muted small mb-2"><strong>Порода:</strong> {pet.breed}</p>
                               <p className="card-text small text-secondary text-truncate">{pet.description}</p>
                             </div>
-                            <button className="btn btn-danger btn-sm w-100 mt-3 py-2 fw-semibold" onClick={() => handleDelete(pet._id)}>🗑️ Отозвать объявление</button>
+                            <button className="btn btn-danger btn-sm w-100 mt-3 py-2 fw-semibold" onClick={() => handleDelete(pet._id)}>Удалить объявление</button>
                           </div>
                         </div>
                       </div>
@@ -1153,16 +1153,16 @@ export default function App() {
                     
                     <h3 className="fw-bold text-dark mb-1">{ownerProfile.name}</h3>
                     <p className="text-muted small mb-3">Автор объявлений на платформе</p>
-                    <p className="text-secondary small bg-white p-3 rounded-3 border border-light shadow-sm">{ownerProfile.bio || '💬 Описание профиля отсутствует.'}</p>
+                    <p className="text-secondary small bg-white p-3 rounded-3 border border-light shadow-sm">{ownerProfile.bio || 'Описание профиля отсутствует.'}</p>
                     
-                    <button className="btn btn-primary w-100 fw-bold my-3 py-2 shadow-sm" onClick={() => alert('💬 Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере.')}>
+                    <button className="btn btn-primary w-100 fw-bold my-3 py-2 shadow-sm" onClick={() => alert('Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере.')}>
                       ✉️ Открыть диалог
                     </button>
 
                     <hr className="my-2" />
                     
                     <div className="text-start mt-3">
-                      <h6 className="fw-bold text-muted small text-uppercase mb-3">📍 Прямые контакты:</h6>
+                      <h6 className="fw-bold text-muted small text-uppercase mb-3">Прямые контакты:</h6>
                       <p className="mb-2 small"><strong>Почта:</strong> <a href={`mailto:${ownerProfile.email}`} className="text-decoration-none fw-medium">{ownerProfile.email}</a></p>
                       <p className="mb-2 small"><strong>Телефон:</strong> {ownerProfile.phone || 'не указан'}</p>
                       
@@ -1175,7 +1175,7 @@ export default function App() {
                             className="btn btn-sm text-white fw-medium shadow-sm py-2 text-center"
                             style={{ backgroundColor: '#24A1DE' }}
                           >
-                            ✈️ Написать в Telegram
+                            Написать в Telegram
                           </a>
                         )}
                         {ownerProfile.whatsapp && (
@@ -1186,7 +1186,7 @@ export default function App() {
                             className="btn btn-sm text-white fw-medium shadow-sm py-2 text-center"
                             style={{ backgroundColor: '#25D366' }}
                           >
-                            💬 Написать в WhatsApp
+                            Написать в WhatsApp
                           </a>
                         )}
                       </div>
@@ -1195,7 +1195,7 @@ export default function App() {
                 </div>
 
                 <div className="col-md-8">
-                  <h4 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Опубликованные объявления автора ({safeOwnerAds.length})</h4>
+                  <h4 className="fw-bold mb-4 pb-2 border-bottom text-dark">Опубликованные объявления автора ({safeOwnerAds.length})</h4>
                   {safeOwnerAds.length === 0 ? (
                     <p className="text-muted py-4 text-center bg-light rounded-3">У этого автора сейчас нет активных объявлений.</p>
                   ) : (
@@ -1211,7 +1211,7 @@ export default function App() {
                               <img src={ad.image} className="card-img-top" alt={ad.name} style={{ height: '150px', objectFit: 'cover' }} />
                             ) : (
                               <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ height: '150px' }}>
-                                📷 Нет фото
+                                Нет фото
                               </div>
                             )}
                             <div className="card-body p-3">
@@ -1241,7 +1241,7 @@ export default function App() {
             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               
               <div className="modal-header border-0 px-4 pt-4 pb-0 bg-white">
-                <h4 className="modal-title fw-bold text-dark">🐾 Анкета питомца: {activeModalPet.name}</h4>
+                <h4 className="modal-title fw-bold text-dark">Анкета питомца: {activeModalPet.name}</h4>
                 <button type="button" className="btn-close" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }} aria-label="Close"></button>
               </div>
               
@@ -1252,7 +1252,7 @@ export default function App() {
                       <img src={activeModalPet.image} alt={activeModalPet.name} className="img-fluid rounded-4 shadow-sm border border-light" style={{ width: '100%', maxHeight: '340px', objectFit: 'cover' }} />
                     ) : (
                       <div className="bg-light h-100 d-flex align-items-center justify-content-center text-muted rounded-4 border" style={{ minHeight: '240px' }}>
-                        📷 Фотография отсутствует
+                        Фотография отсутствует
                       </div>
                     )}
                   </div>
@@ -1316,9 +1316,9 @@ export default function App() {
                     e.currentTarget.style.transform = 'none';
                   }}
                 >
-                  <h6 className="fw-bold text-muted small text-uppercase mb-2">👤 Карточка владельца (Профиль ➔)</h6>
+                  <h6 className="fw-bold text-muted small text-uppercase mb-2">Карточка владельца (Профиль ➔)</h6>
                   <p className="mb-1 text-dark small">Автор: <strong className="text-primary">{modalOwnerName}</strong></p>
-                  <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>📋 Нажмите на этот блок, чтобы открыть подробный профиль и связаться через мессенджеры.</p>
+                  <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>Нажмите на этот блок, чтобы открыть подробный профиль и связаться через мессенджеры.</p>
                   
                   <div className="d-flex gap-2">
                     <button 
@@ -1329,7 +1329,7 @@ export default function App() {
                         if (activeModalPet.userId) openOwnerProfile(activeModalPet.userId);
                       }}
                     >
-                      📞 Посмотреть телефон
+                      Посмотреть телефон
                     </button>
                     <button 
                       type="button"
@@ -1339,7 +1339,7 @@ export default function App() {
                         if (activeModalPet.userId) openOwnerProfile(activeModalPet.userId);
                       }}
                     >
-                      ✉️ Написать автору
+                      Написать автору
                     </button>
                   </div>
                 </div>
