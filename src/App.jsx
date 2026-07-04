@@ -1514,14 +1514,38 @@ export default function App() {
         </div>
       )}
       {isEditModalOpen && (
-        <div className="modal-backdrop" style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', 
-          justifyContent: 'center', zIndex: 1000
+        <div className="modal-backdrop show" style={{ 
+          backgroundColor: 'rgba(0,0,0,0.7)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 2000 
         }}>
-          {/* Контент модалки */}
           <div className="bg-white p-4 rounded-4 shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
-            {/* Твоя форма редактирования */}
+            <h3 className="mb-4">Редактирование объявления</h3>
+            {/* Здесь твоя форма */}
+            <Form onSubmit={async (e) => {
+              e.preventDefault();
+              const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify({ name, breed, description, status, image, lat, lng })
+              });
+              if ((await res.json()).success) {
+                alert('Сохранено!');
+                setIsEditModalOpen(false);
+                // Можно вызвать обновление списка питомцев здесь
+              }
+            }}>
+              <Form.Group className="mb-3">
+                <Form.Label>Кличка</Form.Label>
+                <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
+              </Form.Group>
+              <div className="d-flex gap-2">
+                <Button variant="secondary" onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
+                <Button variant="primary" type="submit">Сохранить</Button>
+              </div>
+            </Form>
           </div>
         </div>
       )}
