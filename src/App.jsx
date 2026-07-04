@@ -385,9 +385,15 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
-    setEditingPet(pet);
+    setEditingPet(pet);      // Сохраняем объект целиком
+    setName(pet.name);       // Заполняем состояние для инпута
+    setBreed(pet.breed);     // Заполняем состояние
+    setDescription(pet.description);
+    setStatus(pet.status);   // ВАЖНО: сохраняем текущий статус
+    setImage(pet.image);     // Сохраняем ссылку на фото
+    setLat(pet.lat);         // Сохраняем координаты
+    setLng(pet.lng);
     setIsEditModalOpen(true);
-    setActiveModalPet(null); // Закрываем анкету при открытии редактирования
   };
 
   const handleSendResetCode = () => {
@@ -1515,57 +1521,65 @@ export default function App() {
       )}
       {isEditModalOpen && (
         <div className="modal-backdrop show" style={{ 
-          backgroundColor: 'rgba(0,0,0,0.85)', // Сделайте фон темнее (0.85 вместо 0.7)
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 9999 // Поставьте очень высокий индекс
+          backgroundColor: 'rgba(0,0,0,0.8)', 
+          position: 'fixed', 
+          top: 0, left: 0, width: '100vw', height: '100vh',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', 
+          zIndex: 9999 
         }}>
-          <div className="bg-white p-4 rounded-4 shadow-lg" style={{ 
-              width: '90%', 
-              maxWidth: '500px',
-              maxHeight: '80vh',      // Чтобы окно не уходило за экран
-              overflowY: 'auto'       // Скролл, если форма длинная
-          }}>
-            {/* Здесь форма */}
+          <div className="bg-white p-4 rounded-4 shadow-lg" style={{ width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 className="mb-4">Редактирование</h3>
             <Form onSubmit={async (e) => {
               e.preventDefault();
+              
+              const payload = { 
+                name, 
+                breed, 
+                description, 
+                status, // Теперь это поле будет передаваться
+                image,  // Теперь это поле будет передаваться
+                lat, 
+                lng 
+              };
+
               const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                body: JSON.stringify({ name, breed, description, status, image, lat, lng })
+                headers: { 
+                  'Content-Type': 'application/json', 
+                  'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                },
+                body: JSON.stringify(payload)
               });
               
               const result = await res.json();
               if (result.success) {
                 alert('Сохранено!');
                 setIsEditModalOpen(false);
-                // Обновите список питомцев, чтобы изменения сразу были видны
                 window.location.reload(); 
               } else {
                 alert('Ошибка: ' + result.message);
               }
             }}>
+
+              {/* 1. Кличка */}
               <Form.Group className="mb-3">
                 <Form.Label>Кличка</Form.Label>
                 <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
               </Form.Group>
-              
+
+              {/* 2. Порода */}
               <Form.Group className="mb-3">
                 <Form.Label>Порода</Form.Label>
                 <Form.Control value={breed} onChange={(e) => setBreed(e.target.value)} />
               </Form.Group>
 
+              {/* 3. Описание */}
               <Form.Group className="mb-3">
                 <Form.Label>Описание</Form.Label>
                 <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
               </Form.Group>
 
+              {/* 4. Статус (Выпадающий список) */}
               <Form.Group className="mb-3">
                 <Form.Label>Статус</Form.Label>
                 <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -1574,7 +1588,8 @@ export default function App() {
                 </Form.Select>
               </Form.Group>
 
-              <div className="d-flex gap-2 mt-4">
+              {/* Кнопки */}
+              <div className="d-flex gap-2">
                 <Button variant="secondary" onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
                 <Button variant="primary" type="submit">Сохранить</Button>
               </div>
