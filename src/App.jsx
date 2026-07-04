@@ -103,7 +103,7 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUs
               title="Открыть анкету"
               onClick={(e) => {
                 e.stopPropagation(); 
-                onOpenDetails(pet, address);
+                openPetModal(pet);
               }}
             >
               Подробнее ➔
