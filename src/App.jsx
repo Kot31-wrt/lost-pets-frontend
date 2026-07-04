@@ -1295,7 +1295,12 @@ export default function App() {
                                 className="btn btn-primary" 
                                 onClick={(e) => {
                                   e.stopPropagation(); 
-                                  onOpenDetails(pet, address);
+                                  // Проверяем, существует ли функция, чтобы избежать ошибки
+                                  if (typeof setActiveModalPet === 'function') {
+                                    setActiveModalPet(pet);
+                                  } else {
+                                    console.error("Ошибка: setActiveModalPet не определена в этом компоненте!");
+                                  }
                                 }}
                               >
                                 Подробнее ➔
