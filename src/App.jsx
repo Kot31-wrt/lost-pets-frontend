@@ -342,6 +342,7 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
+    console.log('Данные питомца, которые пришли в функцию:', pet);
     // Заполняем стейты формы данными выбранного питомца
     setName(pet.name);
     setBreed(pet.breed);
