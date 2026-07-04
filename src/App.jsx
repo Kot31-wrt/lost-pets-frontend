@@ -99,11 +99,18 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUs
           <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
             <small className="text-muted">{new Date(pet.createdAt).toLocaleDateString()}</small>
             <button 
-              className="btn btn-sm btn-light text-primary rounded-3 border-0 fw-bold px-3"
-              title="Открыть анкету"
+              className="btn btn-primary" 
               onClick={(e) => {
                 e.stopPropagation(); 
-                onOpenDetails(pet, address);
+                console.log("onOpenDetails:", onOpenDetails); // <-- ЭТО ПОКАЖЕТ, ЧТО НЕ ТАК
+                console.log("pet:", pet);
+                console.log("address:", address);
+                
+                if (typeof onOpenDetails === 'function') {
+                  onOpenDetails(pet, address);
+                } else {
+                  console.error("Критическая ошибка: onOpenDetails не передана в этот компонент!");
+                }
               }}
             >
               Подробнее ➔
