@@ -162,6 +162,7 @@ export default function App() {
   const [isPulseActive, setIsPulseActive] = useState(false);
 
   const [editingPet, setEditingPet] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Стейты для редактирования профиля
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -363,9 +364,17 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
-  setEditingPet(pet); // триггерит useEffect выше
-  setPage('add-pet');  // Переключаем страницу
-};
+    setEditingPet(pet);
+    setName(pet.name);
+    setBreed(pet.breed);
+    setDescription(pet.description);
+    setStatus(pet.status);
+    setImage(pet.image);
+    setLat(pet.lat);
+    setLng(pet.lng);
+    
+    setIsEditModalOpen(true); // Открываем модальное окно
+  };
 
   const handleSendResetCode = () => {
     setAuthError('');
@@ -1487,6 +1496,18 @@ export default function App() {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+      {isEditModalOpen && (
+        <div className="modal-backdrop" style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', 
+          justifyContent: 'center', zIndex: 1000
+        }}>
+          {/* Контент модалки */}
+          <div className="bg-white p-4 rounded-4 shadow-lg" style={{ width: '90%', maxWidth: '500px' }}>
+            {/* Твоя форма редактирования */}
           </div>
         </div>
       )}
