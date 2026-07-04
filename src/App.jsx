@@ -875,11 +875,22 @@ export default function App() {
                     <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <MapClickHandler setLat={setLat} setLng={setLng} />
                     {lat && lng && <ChangeMapCenter center={[parseFloat(lat), parseFloat(lng)]} />}
-                    {lat && lng && (
-                      <Marker position={[parseFloat(lat), parseFloat(lng)]}>
-                        <Popup>Выбранная точка</Popup>
-                      </Marker>
-                    )}
+                    
+                    {/* Добавляем локальное создание иконки прямо здесь или выносим его в константу компонента */}
+                    {(() => {
+                      const standardIcon = L.icon({
+                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41]
+                      });
+
+                      return lat && lng ? (
+                        <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={standardIcon}>
+                          <Popup>Выбранная точка</Popup>
+                        </Marker>
+                      ) : null;
+                    })()}
                   </MapContainer>
                 </div>
 
