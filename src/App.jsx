@@ -33,7 +33,7 @@ function ChangeMapCenter({ center }) {
 }
 
 // компонет карточки питомца в ленте
-function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUserId }) {
+function PetCard({ pet, onFocusOnMap, onOpenDetails, onEdit, onDelete, currentUserId, setActiveModalPet }) {
   const [address, setAddress] = useState('Загрузка адреса...');
 
   useEffect(() => {
@@ -1021,7 +1021,8 @@ export default function App() {
                           onFocusOnMap={() => {}} 
                           onDelete={handleDeletePet} 
                           onEdit={() => handleEditPet(pet)}
-                          currentUserId={user.id || user._id} 
+                          currentUserId={user.id || user._id}
+                          setActiveModalPet={setActiveModalPet} 
                         />
                       </div>
                     ))}
@@ -1302,11 +1303,9 @@ export default function App() {
                                 className="btn btn-primary" 
                                 onClick={(e) => {
                                   e.stopPropagation(); 
-                                  // Проверяем, существует ли функция, чтобы избежать ошибки
+                                  // Теперь setActiveModalPet будет доступна!
                                   if (typeof setActiveModalPet === 'function') {
                                     setActiveModalPet(pet);
-                                  } else {
-                                    console.error("Ошибка: setActiveModalPet не определена в этом компоненте!");
                                   }
                                 }}
                               >
