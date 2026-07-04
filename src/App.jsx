@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Container, Nav, Form, Button, Alert } from 'react-bootstrap'; 
-import './index.css'; // подключаем наши современные кастомные стили
+import './index.css'; 
 
 // --- НАСТРОЙКА КАРТЫ LEAFLET ---
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } from 'react-leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// регулярное выражение для проверки российских номеров телефонов
+// Регулярное выражение для проверки российских номеров телефонов
 const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[49][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
 
-// компонент, который слушает клики по карте и передает координаты в форму
+// Компонент, который слушает клики по карте и передает координаты в форму
 function MapClickHandler({ setLat, setLng }) {
   useMapEvents({
     click(e) {
@@ -23,7 +21,7 @@ function MapClickHandler({ setLat, setLng }) {
   return null;
 }
 
-// компонент для принудительного перемещения карты при поиске адреса
+// Компонент для принудительного перемещения карты при поиске адреса
 function ChangeMapCenter({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -57,8 +55,9 @@ function PetCard({ pet, onFocusOnMap, onOpenDetails }) {
   return (
     <div className="col">
       <div 
-        className="card h-100 border-0 position-relative" 
+        className="card h-100 border-0 position-relative animate-fade-in" 
         onClick={() => { onFocusOnMap([pet.lat, pet.lng]); window.scrollTo({ top: 240, behavior: 'smooth' }); }}
+        style={{ cursor: 'pointer' }}
       >
         <span className={`pet-status-badge badge-absolute ${pet.status === 'потерялся' ? 'lost' : 'found'}`}>
           {pet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
@@ -104,7 +103,7 @@ export default function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [authMode, setAuthMode] = useState('login'); // login, register, forgot, reset
+  const [authMode, setAuthMode] = useState('login'); 
   const [addressSearch, setAddressSearch] = useState(''); 
   const [isSearchingAddress, setIsSearchingAddress] = useState(false); 
   
@@ -123,7 +122,6 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
 
-  // новые стейты для сброса пароля по смс
   const [resetPhone, setResetPhone] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [resetNewPassword, setResetNewPassword] = useState('');
@@ -144,34 +142,31 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState('все');
   const [isPulseActive, setIsPulseActive] = useState(false);
 
-  // новые стейты для редактирования профиля
-  const [profileName, setProfileName] = useState(user ? user.name : '');
-  const [profilePhone, setProfilePhone] = useState(user ? user.phone || '' : '');
-  const [profileWhatsapp, setProfileWhatsapp] = useState(user ? user.whatsapp || '' : '');
-  const [profileTelegram, setProfileTelegram] = useState(user ? user.telegram || '' : '');
-  const [profileBio, setProfileBio] = useState(user ? user.bio || '' : '');
-  const [profileAvatar, setProfileAvatar] = useState(user ? user.avatar || '' : '');
+  // Стейты для редактирования профиля
+  const [profileName, setProfileName] = useState(user?.name || '');
+  const [profilePhone, setProfilePhone] = useState(user?.phone || '');
+  const [profileTelegram, setProfileTelegram] = useState(user?.telegram || '');
+  const [profileWhatsapp, setProfileWhatsapp] = useState(user?.whatsapp || '');
+  const [profileBio, setProfileBio] = useState(user?.bio || '');
+  const [profileAvatar, setProfileAvatar] = useState(user?.avatar || '');
   const [profileSmsCode, setProfileSmsCode] = useState('');
   const [isProfileSmsSent, setIsProfileSmsSent] = useState(false);
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
 
-  // синхронизация профиля при обновлении данных пользователя
+  // Синхронизация профиля при обновлении данных пользователя
   useEffect(() => {
     if (user) {
-      setProfileName(user.name);
+      setProfileName(user.name || '');
       setProfilePhone(user.phone || '');
-      setProfileWhatsapp(user.whatsapp || '');
       setProfileTelegram(user.telegram || '');
+      setProfileWhatsapp(user.whatsapp || '');
       setProfileBio(user.bio || '');
       setProfileAvatar(user.avatar || '');
     }
   }, [user]);
 
-  // =========================================================================
-  // НАЧАЛО БЛОКА: ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА (КНОПКА "НАЗАД")
-  // =========================================================================
-  
+  // ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА (КНОПКА "НАЗАД")
   useEffect(() => {
     const handlePopState = (event) => {
       if (event.state && event.state.page) {
@@ -190,25 +185,49 @@ export default function App() {
     }
   }, [page]);
 
-  // =========================================================================
-  // КОНЕЦ БЛОКА: ХУКИ ДЛЯ ИСТОРИИ БРАУЗЕРА
-  // =========================================================================
-
+  // 1. Запрос всех питомцев с бэкенда
   useEffect(() => {
     if (user) {
       fetch('https://lost-pets-api-gkoe.onrender.com/api/pets')
-        .then(res => res.json())
-        .then(data => setPets(data))
-        .catch(err => console.error(err));
+        .then(res => {
+          if (!res.ok) throw new Error('Ошибка сервера');
+          return res.json();
+        })
+        .then(data => {
+          if (Array.isArray(data)) {
+            setPets(data);
+          } else {
+            console.error("Бэкенд вернул не массив:", data);
+            setPets([]); 
+          }
+        })
+        .catch(err => {
+          console.error("Ошибка при получении питомцев:", err);
+          setPets([]); 
+        });
     }
   }, [page, user]);
 
+  // 2. Запрос питомцев конкретного юзера
   useEffect(() => {
     if (user && page === 'profile') {
       fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/user/${user.id}`)
-        .then(res => res.json())
-        .then(data => setUserPets(data))
-        .catch(err => console.error(err));
+        .then(res => {
+          if (!res.ok) throw new Error('Ошибка сервера');
+          return res.json();
+        })
+        .then(data => {
+          if (Array.isArray(data)) {
+            setUserPets(data);
+          } else {
+            console.error("Бэкенд вернул не массив для userPets:", data);
+            setUserPets([]);
+          }
+        })
+        .catch(err => {
+          console.error("Ошибка при получении питомцев пользователя:", err);
+          setUserPets([]); 
+        });
     }
   }, [page, user]);
 
@@ -226,13 +245,13 @@ export default function App() {
           setOwnerProfile(data.user);
           setOwnerAds(data.ads);
         } else {
-          alert('не удалось загрузить профиль пользователя');
+          alert('Не удалось загрузить профиль пользователя');
           setPage('map');
         }
         setIsLoadingOwner(false);
       })
       .catch(err => {
-        console.error('ошибка загрузки профиля:', err);
+        console.error('Ошибка загрузки профиля:', err);
         setIsLoadingOwner(false);
         setPage('map');
       });
@@ -250,49 +269,55 @@ export default function App() {
           setLat(parseFloat(result.lat).toFixed(6));
           setLng(parseFloat(result.lon).toFixed(6));
         } else {
-          alert('адрес не найден. попробуйте ввести точнее.');
+          alert('Адрес не найден. Попробуйте ввести точнее.');
         }
         setIsSearchingAddress(false);
       })
       .catch(err => {
-        console.error('ошибка поиска адреса:', err);
+        console.error('Ошибка поиска адреса:', err);
         setIsSearchingAddress(false);
       });
   };
 
-  const filteredPets = pets.filter(pet => {
-    const matchesStatus = statusFilter === 'все' || pet.status === statusFilter;
-    const matchesSearch = pet.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          pet.breed.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const filteredPets = Array.isArray(pets) 
+    ? pets.filter(pet => {
+        if (!pet) return false;
+        const matchesSearch = (pet.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) || 
+                              (pet.breed || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+        const matchesStatus = statusFilter === 'все' || pet.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+    : [];
+
+  const safeOwnerAds = Array.isArray(ownerAds) ? ownerAds : [];
 
   const handleDelete = (petId) => {
-    if (window.confirm('вы уверены, что хотите удалить это объявление?')) {
+    if (window.confirm('Вы уверены, что хотите удалить это объявление?')) {
       fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${petId}`, { method: 'DELETE' })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          alert('объявление успешно удалено!');
-          setUserPets(userPets.filter(pet => pet._id !== petId));
+          alert('Объявление успешно удалено!');
+          setUserPets(prevUserPets => 
+            Array.isArray(prevUserPets) ? prevUserPets.filter(pet => pet._id !== petId) : []
+          );
         }
       })
       .catch(err => console.error(err));
     }
   };
 
-  // отправка запроса на получение смс-кода для восстановления пароля
   const handleSendResetCode = () => {
     setAuthError('');
     setAuthSuccess('');
 
     if (!resetPhone) {
-      setAuthError('введите номер телефона для восстановления');
+      setAuthError('Введите номер телефона для восстановления');
       return;
     }
 
     if (!phoneRegex.test(resetPhone)) {
-      setAuthError('неверный формат номера. используйте формат +79991112233');
+      setAuthError('Неверный формат номера. Используйте формат +79991112233');
       return;
     }
 
@@ -304,19 +329,15 @@ export default function App() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        setAuthSuccess('смс с кодом успешно отправлено');
+        setAuthSuccess('СМС с кодом успешно отправлено');
         setAuthMode('reset');
-        if (data.testCode) {
-          console.log('тестовый код сброса:', data.testCode);
-        }
       } else {
         setAuthError(data.message);
       }
     })
-    .catch(() => setAuthError('ошибка отправки запроса на сервер'));
+    .catch(() => setAuthError('Ошибка отправки запроса на сервер'));
   };
 
-  // отправка кода подтверждения и нового пароля в бэкенд
   const handleResetPasswordSubmit = (e) => {
     e.preventDefault();
     setAuthError('');
@@ -329,7 +350,7 @@ export default function App() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        alert('пароль успешно изменен. теперь вы можете войти.');
+        alert('Пароль успешно изменен. Теперь вы можете войти.');
         setAuthMode('login');
         setResetPhone('');
         setResetCode('');
@@ -338,7 +359,7 @@ export default function App() {
         setAuthError(data.message);
       }
     })
-    .catch(() => setAuthError('ошибка изменения пароля на сервере'));
+    .catch(() => setAuthError('Ошибка изменения пароля на сервере'));
   };
 
   const handleAuthSubmit = (e) => {
@@ -365,7 +386,7 @@ export default function App() {
         setAuthError(data.message);
       } else {
         if (authMode === 'register') {
-          setAuthSuccess('регистрация успешна! теперь войдите в аккаунт.');
+          setAuthSuccess('Регистрация успешна! Теперь войдите в аккаунт.');
           setAuthMode('login');
           setAuthPassword('');
         } else {
@@ -374,7 +395,7 @@ export default function App() {
         }
       }
     })
-    .catch(err => setAuthError('ошибка подключения к серверу'));
+    .catch(() => setAuthError('Ошибка подключения к серверу'));
   };
 
   const handleLogout = () => {
@@ -389,96 +410,92 @@ export default function App() {
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
         <div className="p-5 bg-white rounded-4 border-0 shadow-lg" style={{ width: '100%', maxWidth: '440px' }}>
           <h2 className="text-center fw-bold mb-2">🐾 LOST & FOUND</h2>
-          <p className="text-center text-muted small mb-4">сервис поиска потерянных домашних животных</p>
+          <p className="text-center text-muted small mb-4">Сервис поиска потерянных домашних животных</p>
           
           <h5 className="text-center fw-semibold mb-4 text-secondary">
-            {authMode === 'login' && '🔑 вход в систему'}
-            {authMode === 'register' && '📝 создание аккаунта'}
-            {authMode === 'forgot' && '🔒 восстановление пароля'}
-            {authMode === 'reset' && '🔢 ввод нового пароля'}
+            {authMode === 'login' && '🔑 Вход в систему'}
+            {authMode === 'register' && '📝 Создание аккаунта'}
+            {authMode === 'forgot' && '🔒 Восстановление пароля'}
+            {authMode === 'reset' && '🔢 Ввод нового пароля'}
           </h5>
 
           {authError && <Alert variant="danger" className="rounded-3 small">{authError}</Alert>}
           {authSuccess && <Alert variant="success" className="rounded-3 small">{authSuccess}</Alert>}
 
-          {/* форма обычного входа и регистрации */}
           {(authMode === 'login' || authMode === 'register') && (
             <Form onSubmit={handleAuthSubmit}>
               {authMode === 'register' && (
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold text-secondary small">ваше имя</Form.Label>
-                  <Form.Control type="text" placeholder="иван иванов" value={authName} onChange={(e) => setAuthName(e.target.value)} required />
+                  <Form.Label className="fw-semibold text-secondary small">Ваше имя</Form.Label>
+                  <Form.Control type="text" placeholder="Иван Иванов" value={authName} onChange={(e) => setAuthName(e.target.value)} required />
                 </Form.Group>
               )}
 
               <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold text-secondary small">email адрес</Form.Label>
+                <Form.Label className="fw-semibold text-secondary small">Email адрес</Form.Label>
                 <Form.Control type="email" placeholder="name@example.com" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} required />
               </Form.Group>
 
               <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold text-secondary small">пароль</Form.Label>
+                <Form.Label className="fw-semibold text-secondary small">Пароль</Form.Label>
                 <Form.Control type="password" placeholder="••••••••" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} required />
               </Form.Group>
 
               <Button type="submit" className="w-100 mb-3 py-2.5 fw-bold btn-primary shadow-sm">
-                {authMode === 'login' ? 'войти' : 'зарегистрироваться'}
+                {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
               </Button>
 
               <div className="text-center d-flex flex-column gap-1">
                 {authMode === 'login' ? (
                   <>
                     <button type="button" className="btn btn-link btn-sm text-decoration-none fw-medium text-primary" onClick={() => { setAuthMode('register'); setAuthError(''); setAuthSuccess(''); }}>
-                      нет аккаунта? зарегистрироваться
+                      Нет аккаунта? Зарегистрироваться
                     </button>
                     <button type="button" className="btn btn-link btn-sm text-decoration-none fw-medium text-secondary small" onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthSuccess(''); }}>
-                      забыли пароль? восстановить по смс
+                      Забыли пароль? Восстановить по СМС
                     </button>
                   </>
                 ) : (
                   <button type="button" className="btn btn-link btn-sm text-decoration-none fw-medium text-primary" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccess(''); }}>
-                    уже есть аккаунт? войти
+                    Уже есть аккаунт? Войти
                   </button>
                 )}
               </div>
             </Form>
           )}
 
-          {/* шаг 1: ввод номера телефона для запроса кода */}
           {authMode === 'forgot' && (
             <div>
               <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold text-secondary small">номер телефона</Form.Label>
+                <Form.Label className="fw-semibold text-secondary small">Номер телефона</Form.Label>
                 <Form.Control type="text" placeholder="+79991112233" value={resetPhone} onChange={(e) => setResetPhone(e.target.value)} />
               </Form.Group>
               <Button type="button" className="w-100 mb-3 py-2.5 fw-bold btn-primary shadow-sm" onClick={handleSendResetCode}>
-                получить код в смс
+                Получить код в СМС
               </Button>
               <div className="text-center">
                 <button type="button" className="btn btn-link btn-sm text-decoration-none fw-medium text-primary" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccess(''); }}>
-                  вернуться назад к входу
+                  Вернуться назад к входу
                 </button>
               </div>
             </div>
           )}
 
-          {/* шаг 2: ввод полученного кода и нового пароля */}
           {authMode === 'reset' && (
             <Form onSubmit={handleResetPasswordSubmit}>
               <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold text-secondary small">4-значный код из смс</Form.Label>
+                <Form.Label className="fw-semibold text-secondary small">4-значный код из СМС</Form.Label>
                 <Form.Control type="text" placeholder="1234" value={resetCode} onChange={(e) => setResetCode(e.target.value)} required maxLength="4" className="text-center" />
               </Form.Group>
               <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold text-secondary small">новый пароль</Form.Label>
+                <Form.Label className="fw-semibold text-secondary small">Новый пароль</Form.Label>
                 <Form.Control type="password" placeholder="••••••••" value={resetNewPassword} onChange={(e) => setResetNewPassword(e.target.value)} required />
               </Form.Group>
               <Button type="submit" className="w-100 mb-3 py-2.5 fw-bold btn-primary shadow-sm">
-                сохранить новый пароль
+                Сохранить новый пароль
               </Button>
             </Form>
           )}
-
         </div>
       </div>
     );
@@ -497,7 +514,7 @@ export default function App() {
             <Nav className="ms-auto">
               <Nav.Link active={page === 'map'} onClick={() => setPage('map')}>🗺️ Карта и поиск</Nav.Link>
               <Nav.Link active={page === 'add'} onClick={() => setPage('add')}>➕ Добавить объявление</Nav.Link>
-              <Nav.Link active={page === 'profile'} onClick={() => setPage('profile')}>👤 Кабинет ({user.name})</Nav.Link>
+              <Nav.Link active={page === 'profile'} onClick={() => setPage('profile')}>👤 Кабинет ({user?.name || 'Пользователь'})</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -528,7 +545,7 @@ export default function App() {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3 px-1">
-              <span className="text-muted small">Активных меток: <strong className="text-dark">{filteredPets.length}</strong></span>
+              <span className="text-muted small">Активных меток: <strong className="text-dark">{Array.isArray(filteredPets) ? filteredPets.length : 0}</strong></span>
               {(searchQuery || statusFilter !== 'все') && (
                 <button className="btn btn-link btn-sm text-decoration-none p-0 fw-semibold text-primary" onClick={() => { setSearchQuery(''); setStatusFilter('все'); }}>🧹 Очистить фильтры</button>
               )}
@@ -539,22 +556,19 @@ export default function App() {
                 <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {selectedPetCoords && <ChangeMapCenter center={selectedPetCoords} />}
                 
-                {filteredPets.map(pet => {
-                  if (!pet.lat || !pet.lng) return null;
+                {Array.isArray(filteredPets) && filteredPets.map(pet => {
+                  if (!pet || !pet.lat || !pet.lng) return null;
 
                   const createdTime = pet.createdAt ? new Date(pet.createdAt).getTime() : new Date().getTime(); 
                   const currentTime = new Date().getTime();
                   const hoursPassed = (currentTime - createdTime) / (1000 * 60 * 60);
                   const isFreshLoss = hoursPassed <= 24; 
 
-                  // заглушка, если у питомца нет фотографии (красивая иконка лапки)
                   const petImageUrl = pet.image || 'https://img.icons8.com/ios-filled/50/737373/paw.png';
                   
-                  // настраиваем динамические цвета для css-переменных
                   const borderColor = pet.status === 'потерялся' ? '#ff3b30' : '#34c759';
                   const shadowColor = pet.status === 'потерялся' ? 'rgba(255, 59, 48, 0.6)' : 'rgba(52, 199, 89, 0.6)';
 
-                  // генерируем html-иконку, передавая цвета через стили
                   const customIcon = L.divIcon({
                     className: 'custom-pet-marker',
                     html: `
@@ -570,7 +584,6 @@ export default function App() {
 
                   return (
                     <React.Fragment key={pet._id}>
-                      {/* маркер с кастомной аватаркой */}
                       <Marker position={[pet.lat, pet.lng]} icon={customIcon}>
                         <Popup>
                           <div className="p-1" style={{ maxWidth: '200px' }}>
@@ -590,7 +603,6 @@ export default function App() {
                               </div>
                             )}
 
-                            {/* кнопка подробнее с функцией загрузки имени автора объявления */}
                             <button 
                               className="btn btn-primary btn-sm w-100 py-1 fw-medium" 
                               style={{ fontSize: '12px' }}
@@ -601,10 +613,15 @@ export default function App() {
                                   fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${pet.userId}`)
                                     .then(res => res.json())
                                     .then(data => {
-                                      if (data.success && data.user && data.user.name) setModalOwnerName(data.user.name);
-                                      else setModalOwnerName(`Пользователь #${pet.userId.substring(0, 6)}`);
+                                      if (data.success && data.user && data.user.name) {
+                                        setModalOwnerName(data.user.name);
+                                      } else {
+                                        setModalOwnerName(`Пользователь #${String(pet.userId).substring(0, 6)}`);
+                                      }
                                     })
-                                    .catch(() => setModalOwnerName(`Пользователь #${pet.userId.substring(0, 6)}`));
+                                    .catch(() => setModalOwnerName(`Пользователь #${String(pet.userId).substring(0, 6)}`));
+                                } else {
+                                  setModalOwnerName('Неизвестный автор');
                                 }
                               }}
                             >
@@ -614,7 +631,6 @@ export default function App() {
                         </Popup>
                       </Marker>
 
-                      {/* радиус поиска для свежих пропаж */}
                       {pet.status === 'потерялся' && isFreshLoss && (
                         <Circle
                           center={[pet.lat, pet.lng]}
@@ -634,11 +650,10 @@ export default function App() {
               </MapContainer>
             </div>
 
-
             {/* ЛЕНТА ОБЪЯВЛЕНИЙ */}
             <div className="mt-4">
               <h3 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Последние объявления</h3>
-              {filteredPets.length === 0 ? (
+              {(!Array.isArray(filteredPets) || filteredPets.length === 0) ? (
                 <p className="text-muted text-center py-5 bg-light rounded-4">По вашему запросу объявлений не найдено.</p>
               ) : (
                 <div className="row row-cols-1 row-cols-md-3 g-4">
@@ -647,30 +662,22 @@ export default function App() {
                       key={pet._id} 
                       pet={pet} 
                       onFocusOnMap={setSelectedPetCoords} 
-                      
-                      /* ИСПРАВЛЕНО: Теперь при открытии анкеты мы загружаем имя автора с сервера */
                       onOpenDetails={(p, addr) => {
-                        // 1. Моментально открываем модалку с данными питомца
                         setActiveModalPet({ ...p, calculatedAddress: addr });
-                        // 2. Ставим имя в режим ожидания
                         setModalOwnerName('Загрузка...');
                         
-                        // 3. Делаем запрос к API пользователей
-                        if (p.userId) {
+                        if (p && p.userId) {
                           fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${p.userId}`)
                             .then(res => res.json())
                             .then(data => {
                               if (data.success && data.user && data.user.name) {
-                                // Подставляем настоящее имя, если нашли
                                 setModalOwnerName(data.user.name);
                               } else {
-                                // Заглушка, если имени нет
-                                setModalOwnerName(`Пользователь #${p.userId.substring(0, 6)}`);
+                                setModalOwnerName(`Пользователь #${String(p.userId).substring(0, 6)}`);
                               }
                             })
                             .catch(() => {
-                              // Заглушка на случай ошибки сети
-                              setModalOwnerName(`Пользователь #${p.userId.substring(0, 6)}`);
+                              setModalOwnerName(`Пользователь #${String(p.userId).substring(0, 6)}`);
                             });
                         } else {
                           setModalOwnerName('Неизвестный автор');
@@ -696,7 +703,7 @@ export default function App() {
                 alert('⚠️ Пожалуйста, зафиксируйте точку встречи на карте!');
                 return;
               }
-              const newPetData = { status, name, breed, description, image, lat: parseFloat(lat), lng: parseFloat(lng), userId: user.id };
+              const newPetData = { status, name, breed, description, image, lat: parseFloat(lat), lng: parseFloat(lng), userId: user?.id };
 
               fetch('https://lost-pets-api-gkoe.onrender.com/api/pets', {
                 method: 'POST',
@@ -709,9 +716,14 @@ export default function App() {
                   alert('🎉 Объявление успешно размещено на карте!');
                   setName(''); setBreed(''); setDescription(''); setLat(''); setLng(''); setImage(''); setAddressSearch('');
                   setPage('map');
+                } else {
+                  alert(`⚠️ Не удалось сохранить: ${data.message || 'Ошибка сервера'}`);
                 }
               })
-              .catch(err => console.error(err));
+              .catch(err => {
+                console.error(err);
+                alert('💥 Ошибка сети! Не удалось связаться с сервером. Попробуйте позже.');
+              });
             }}>
               
               <div className="mb-3">
@@ -741,7 +753,7 @@ export default function App() {
               <div className="mb-4">
                 <label className="form-label fw-semibold text-secondary small">Фотография</label>
                 <input type="file" className="form-control" accept="image/*" onChange={(e) => {
-                  const file = e.target.files[0];
+                  const file = e.target.files && e.target.files[0];
                   if (file) {
                     const reader = new FileReader();
                     reader.onloadend = () => setImage(reader.result);
@@ -752,7 +764,7 @@ export default function App() {
 
               <div className="mb-4 p-4 rounded-4" style={{ background: '#F9FAFB' }}>
                 <label className="form-label fw-bold text-primary mb-1">📍 Геолокация происшествия</label>
-                <p className="text-muted small mb-3">Используйте умный текстовый поиск или кликните по мини-карте вручную.</p>
+                <p className="text-muted small mb-3">Используйте умный текстовый поиск или кликните по mini-карте вручную.</p>
                 
                 <div className="input-group mb-3">
                   <input 
@@ -783,14 +795,14 @@ export default function App() {
 
                 <div className="text-center">
                   {!lat || !lng ? (
-                    <span className="badge-location badge-location-danger">⚠️ Точка локации не зафиксирована</span>
+                    <span className="badge bg-danger p-2">⚠️ Точка локации не зафиксирована</span>
                   ) : (
-                    <span className="badge-location badge-location-success">✅ Точка успешно установлена</span>
+                    <span className="badge bg-success p-2">✅ Точка успешно установлена</span>
                   )}
                 </div>
               </div>
               
-              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">🚀 Разместить объявиение</button>
+              <button type="submit" className="btn btn-primary w-100 btn-lg shadow fw-bold py-3">🚀 Разместить объявление</button>
             </form>
           </div>
         )}
@@ -798,12 +810,11 @@ export default function App() {
         {/* ВКЛАДКА 3: ЛИЧНЫЙ КАБИНЕТ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ */}
         {page === 'profile' && (
           <div className="row g-4">
-            {/* левая колонка: основная карточка и кнопка выхода */}
             <div className="col-md-4">
               <div className="p-4 bg-white rounded-4 border border-light shadow-sm text-center">
-                {profileAvatar ? (
+                {user.avatar || profileAvatar ? (
                   <img 
-                    src={profileAvatar} 
+                    src={user.avatar || profileAvatar} 
                     alt={user.name} 
                     className="rounded-circle object-fit-cover mb-3 shadow-sm" 
                     style={{ width: '90px', height: '90px', border: '2px solid var(--bs-primary)' }} 
@@ -816,66 +827,72 @@ export default function App() {
                 <h4 className="fw-bold mb-1 text-dark">{user.name}</h4>
                 <p className="text-muted small mb-3">Участник сообщества</p>
                 <hr className="my-3" />
-                <p className="text-start mb-4 small text-secondary"><strong>Email аккаунта:</strong> <br />{user.email}</p>
+                
+                {/* ВЫВОД АКТУАЛЬНЫХ ДАННЫХ ИЗ STATE USER */}
+                <div className="text-start mb-4 small text-secondary">
+                  <p className="mb-2"><strong>📧 Email:</strong> <br />{user.email}</p>
+                  <p className="mb-2"><strong>📞 Телефон:</strong> <br />{user.phone || <span className="text-danger">не указан</span>}</p>
+                  <p className="mb-2"><strong>✈️ Telegram:</strong> <br />{user.telegram || <span className="text-danger">не указан</span>}</p>
+                  <p className="mb-2"><strong>💬 WhatsApp:</strong> <br />{user.whatsapp || <span className="text-danger">не указан</span>}</p>
+                  <p className="mb-0"><strong>📝 О себе:</strong> <br /><span className="text-dark">{user.bio || '—'}</span></p>
+                </div>
+
                 <button className="btn btn-outline-danger btn-sm w-100 py-2 fw-semibold" onClick={handleLogout}>🚪 Выйти из профиля</button>
               </div>
             </div>
             
-            {/* правая колонка: редактирование данных и управление объявлениями */}
             <div className="col-md-8">
-              {/* подблок а: настройки расширенного профиля */}
               <div className="p-4 bg-white rounded-4 border border-light shadow-sm mb-4">
-                <h3 className="fw-bold mb-4 text-dark">⚙️ Настройки профиля</h3>
-                
-                {profileError && <Alert variant="danger" className="rounded-3 small">{profileError}</Alert>}
-                {profileSuccess && <Alert variant="success" className="rounded-3 small">{profileSuccess}</Alert>}
+                <h4 className="mb-4 fw-bold text-dark">📝 Редактировать профиль</h4>
+  
+                {profileError && <div className="alert alert-danger">{profileError}</div>}
+                {profileSuccess && <div className="alert alert-success">{profileSuccess}</div>}
 
                 <Form onSubmit={(e) => {
                   e.preventDefault();
                   setProfileError('');
                   setProfileSuccess('');
 
-                  // если телефон изменился или вводится заново, проверяем его регуляркой
+                  // Проверка телефона перед отправкой СМС
                   if (profilePhone && profilePhone !== (user.phone || '')) {
                     if (!phoneRegex.test(profilePhone)) {
-                      setProfileError('неверный формат номера телефона. используйте формат +79991112233');
+                      setProfileError('Неверный формат номера телефона. Используйте +79991112233');
                       return;
                     }
-                    // если смс еще не отправлено, инициируем отправку кода подтверждения
                     if (!isProfileSmsSent) {
                       fetch('https://lost-pets-api-gkoe.onrender.com/api/users/send-phone-code', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: profilePhone, userId: user.id })
+                        body: JSON.stringify({ phone: profilePhone, userId: user.id || user._id })
                       })
                       .then(res => res.json())
                       .then(data => {
                         if (data.success) {
                           setIsProfileSmsSent(true);
-                          setProfileSuccess('код подтверждения отправлен в смс. введите его ниже для сохранения номера.');
-                          if (data.testCode) {
-                            console.log('тестовый код верификации:', data.testCode);
-                          }
+                          setProfileSuccess('Код подтверждения отправлен в СМС.');
                         } else {
                           setProfileError(data.message);
                         }
                       })
-                      .catch(() => setProfileError('ошибка отправки смс-кода на сервер'));
+                      .catch(() => setProfileError('Ошибка отправки СМС-кода'));
                       return;
                     }
                   }
 
-                  // сбор общих измененных данных профиля для отправки в бэкенд
+                  // Отправка ВСЕХ полей на сервер
                   const updatedData = {
                     name: profileName,
+                    phone: profilePhone,
                     whatsapp: profileWhatsapp,
                     telegram: profileTelegram,
                     bio: profileBio,
                     avatar: profileAvatar,
-                    code: profileSmsCode // передается, если подтверждается телефон
+                    code: profileSmsCode 
                   };
 
-                  fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${user.id}`, {
+                  const currentUserId = user.id || user._id;
+
+                  fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/profile/${currentUserId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedData)
@@ -883,101 +900,117 @@ export default function App() {
                   .then(res => res.json())
                   .then(data => {
                     if (data.success) {
-                      setProfileSuccess('профиль успешно обновлен!');
-                      localStorage.setItem('petUser', JSON.stringify(data.user));
-                      setUser(data.user);
+                      setProfileSuccess('Профиль успешно обновлен!');
+                      const updatedUserForStorage = {
+                        ...data.user,
+                        id: data.user.id || data.user._id
+                      };
+                      localStorage.setItem('petUser', JSON.stringify(updatedUserForStorage));
+                      setUser(updatedUserForStorage);
                       setIsProfileSmsSent(false);
                       setProfileSmsCode('');
                     } else {
                       setProfileError(data.message);
                     }
                   })
-                  .catch(() => setProfileError('ошибка обновления данных на сервере'));
+                  .catch(() => setProfileError('Ошибка обновления данных на сервере'));
                 }}>
 
-                  <div className="row g-3 mb-3">
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <Form.Label className="fw-semibold text-secondary small">Отображаемое имя</Form.Label>
-                        <Form.Control type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required />
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <Form.Label className="fw-semibold text-secondary small">Номер телефона (для связи и СМС)</Form.Label>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="+79991112233" 
-                          value={profilePhone} 
-                          onChange={(e) => {
-                            setProfilePhone(e.target.value);
-                            if (isProfileSmsSent) setIsProfileSmsSent(false); // сбрасываем отправку, если номер начали менять
-                          }} 
-                        />
-                      </Form.Group>
-                    </div>
-                  </div>
+                  {/* Поле Имя */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold text-secondary">Ваше имя</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={profileName} 
+                      onChange={(e) => setProfileName(e.target.value)} 
+                      placeholder="Введите имя"
+                      required
+                    />
+                  </Form.Group>
 
-                  {/* поле ввода кода из смс при привязке телефона */}
+                  {/* Поле Телефон */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold text-secondary">📞 Номер телефона</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={profilePhone} 
+                      onChange={(e) => setProfilePhone(e.target.value)} 
+                      placeholder="+79991112233"
+                    />
+                    <Form.Text className="text-muted">
+                      При изменении номера потребуется СМС-подтверждение.
+                    </Form.Text>
+                  </Form.Group>
+
+                  {/* Поле ввода СМС-кода (показывается только если СМС отправлено) */}
                   {isProfileSmsSent && (
-                    <Form.Group className="mb-3 p-3 rounded-3" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FDE68A' }}>
-                      <Form.Label className="fw-bold text-warning-custom small">Введите 4-значный код подтверждения</Form.Label>
+                    <Form.Group className="mb-3 p-3 bg-light rounded-3 border border-warning">
+                      <Form.Label className="fw-bold text-warning">🔑 Введите код из СМС</Form.Label>
                       <Form.Control 
                         type="text" 
-                        placeholder="1234" 
                         value={profileSmsCode} 
                         onChange={(e) => setProfileSmsCode(e.target.value)} 
-                        maxLength="4" 
-                        required 
-                        className="text-center fw-bold"
-                        style={{ maxWidth: '150px', margin: '0 auto' }}
+                        placeholder="Четырехзначный код"
+                        required
                       />
                     </Form.Group>
                   )}
 
-                  <div className="row g-3 mb-3">
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <Form.Label className="fw-semibold text-secondary small">Никнейм Telegram (без @)</Form.Label>
-                        <Form.Control type="text" placeholder="username" value={profileTelegram} onChange={(e) => setProfileTelegram(e.target.value)} />
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <Form.Label className="fw-semibold text-secondary small">Ссылка или номер WhatsApp</Form.Label>
-                        <Form.Control type="text" placeholder="79991112233" value={profileWhatsapp} onChange={(e) => setProfileWhatsapp(e.target.value)} />
-                      </Form.Group>
-                    </div>
-                  </div>
+                  {/* Поле Telegram */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold text-secondary">✈️ Ник в Telegram</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={profileTelegram} 
+                      onChange={(e) => setProfileTelegram(e.target.value)} 
+                      placeholder="@username или ссылка"
+                    />
+                  </Form.Group>
 
-                  <div className="mb-3">
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">Фото профиля (аватар)</Form.Label>
-                      <Form.Control type="file" accept="image/*" onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => setProfileAvatar(reader.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }} />
-                    </Form.Group>
-                  </div>
+                  {/* Поле WhatsApp */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold text-secondary">💬 Номер WhatsApp</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={profileWhatsapp} 
+                      onChange={(e) => setProfileWhatsapp(e.target.value)} 
+                      placeholder="Например, +79991112233"
+                    />
+                  </Form.Group>
 
-                  <div className="mb-4">
-                    <Form.Group>
-                      <Form.Label className="fw-semibold text-secondary small">О себе</Form.Label>
-                      <Form.Control as="textarea" rows="2" placeholder="расскажите немного о себе или укажите дополнительные контакты..." value={profileBio} onChange={(e) => setProfileBio(e.target.value)} />
-                    </Form.Group>
-                  </div>
+                  {/* Поле Ссылка на Аватар */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold text-secondary">🖼️ Ссылка на аватарку (URL)</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={profileAvatar} 
+                      onChange={(e) => setProfileAvatar(e.target.value)} 
+                      placeholder="https://example.com/avatar.jpg"
+                    />
+                  </Form.Group>
 
-                  <Button type="submit" className="btn btn-primary btn-sm px-4 fw-bold shadow-sm">
-                    {isProfileSmsSent ? 'Подтвердить код и сохранить' : 'Сохранить изменения'}
+                  {/* Поле О себе */}
+                  <Form.Group className="mb-4">
+                    <Form.Label className="fw-semibold text-secondary">📝 О себе / Описание</Form.Label>
+                    <Form.Control 
+                      as="textarea" 
+                      rows={3} 
+                      value={profileBio} 
+                      onChange={(e) => setProfileBio(e.target.value)} 
+                      placeholder="Расскажите немного о себе..."
+                    />
+                  </Form.Group>
+
+                  <Button 
+                    type="submit" 
+                    variant={isProfileSmsSent ? "warning" : "primary"} 
+                    className="w-100 fw-bold py-2 rounded-3 shadow-sm"
+                  >
+                    {isProfileSmsSent ? '✅ Подтвердить код и сохранить профиль' : '💾 Сохранить изменения'}
                   </Button>
                 </Form>
               </div>
 
-              {/* подблок б: список личных объявлений текущего пользователя */}
               <div className="p-4 bg-white rounded-4 border border-light shadow-sm">
                 <h3 className="fw-bold mb-4 text-dark">📋 Управление публикациями ({userPets.length})</h3>
                 {userPets.length === 0 ? (
@@ -1034,7 +1067,7 @@ export default function App() {
                     <p className="text-muted small mb-3">Автор объявлений на платформе</p>
                     <p className="text-secondary small bg-white p-3 rounded-3 border border-light shadow-sm">{ownerProfile.bio || '💬 Описание профиля отсутствует.'}</p>
                     
-                    <button className="btn btn-primary w-100 fw-bold my-3 py-2.5 shadow-sm" onClick={() => alert('💬 Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере.')}>
+                    <button className="btn btn-primary w-100 fw-bold my-3 py-2 shadow-sm" onClick={() => alert('💬 Модуль "Внутренний чат (WebSockets)" находится в стадии подключения на сервере.')}>
                       ✉️ Открыть диалог
                     </button>
 
@@ -1045,7 +1078,6 @@ export default function App() {
                       <p className="mb-2 small"><strong>Почта:</strong> <a href={`mailto:${ownerProfile.email}`} className="text-decoration-none fw-medium">{ownerProfile.email}</a></p>
                       <p className="mb-2 small"><strong>Телефон:</strong> {ownerProfile.phone || 'не указан'}</p>
                       
-                      {/* мессенджеры для быстрой связи с автором */}
                       <div className="d-flex flex-column gap-2 mt-3">
                         {ownerProfile.telegram && (
                           <a 
@@ -1075,12 +1107,12 @@ export default function App() {
                 </div>
 
                 <div className="col-md-8">
-                  <h4 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Опубликованные объявления автора ({ownerAds.length})</h4>
-                  {ownerAds.length === 0 ? (
+                  <h4 className="fw-bold mb-4 pb-2 border-bottom text-dark">📋 Опубликованные объявления автора ({safeOwnerAds.length})</h4>
+                  {safeOwnerAds.length === 0 ? (
                     <p className="text-muted py-4 text-center bg-light rounded-3">У этого автора сейчас нет активных объявлений.</p>
                   ) : (
                     <div className="row row-cols-1 row-cols-md-2 g-3">
-                      {ownerAds.map(ad => (
+                      {safeOwnerAds.map(ad => (
                         <div className="col" key={ad._id}>
                           <div className="card h-100 border-light shadow-sm position-relative">
                             <span className={`pet-status-badge badge-absolute ${ad.status === 'потерялся' ? 'lost' : 'found'}`}>
@@ -1114,22 +1146,19 @@ export default function App() {
 
       </Container>
 
-      {/* --- КРАСИВОЕ СОВРЕМЕННОЕ МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
+      {/* --- МОДАЛЬНОЕ ОКНО АНКЕТЫ ПИТОМЦА --- */}
       {activeModalPet && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }} tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
               
-              {/* Шапка модалки */}
               <div className="modal-header border-0 px-4 pt-4 pb-0 bg-white">
                 <h4 className="modal-title fw-bold text-dark">🐾 Анкета питомца: {activeModalPet.name}</h4>
                 <button type="button" className="btn-close" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }} aria-label="Close"></button>
               </div>
               
-              {/* Тело модалки */}
               <div className="modal-body p-4 bg-white">
                 <div className="row g-4">
-                  {/* Левая колонка: Изображение */}
                   <div className="col-md-6">
                     {activeModalPet.image ? (
                       <img src={activeModalPet.image} alt={activeModalPet.name} className="img-fluid rounded-4 shadow-sm border border-light" style={{ width: '100%', maxHeight: '340px', objectFit: 'cover' }} />
@@ -1140,20 +1169,17 @@ export default function App() {
                     )}
                   </div>
                   
-                  {/* Правая колонка: Описание и плашки */}
                   <div className="col-md-6 d-flex flex-column justify-content-between">
                     <div>
-                      {/* СТАТУС-ПЛАШКА */}
                       <div className="mb-3">
                         <span className={`pet-status-badge ${activeModalPet.status === 'потерялся' ? 'lost' : 'found'}`}>
                           {activeModalPet.status === 'потерялся' ? '💔 Потерялся' : '💚 Найден'}
                         </span>
                       </div>
                       
-                      {/* Live-предупреждение времени */}
-                      {activeModalPet.status === 'потерялся' && (
+                      {activeModalPet.status === 'потерялся' && activeModalPet.createdAt && (
                         <div className="time-alert-box mb-3">
-                          {activeModalPet.createdAt && ((new Date().getTime() - new Date(activeModalPet.createdAt).getTime()) / (1000 * 60 * 60)) <= 24 ? (
+                          {((new Date().getTime() - new Date(activeModalPet.createdAt).getTime()) / (1000 * 60 * 60)) <= 24 ? (
                             <div className="alert alert-danger py-2 px-3 border-0 rounded-3 small m-0 d-flex align-items-center gap-2">
                               <span className={isPulseActive ? "pulse-dot" : "static-dot"} style={{ width: '8px', height: '8px', backgroundColor: '#dc3545', borderRadius: '50%', display: 'inline-block' }}></span>
                               <span>Активный поиск: питомец потерян недавно! Зона поиска в радиусе 1 км актуальна.</span>
@@ -1166,7 +1192,7 @@ export default function App() {
                         </div>
                       )}
 
-                      <h3 className="fw-bold mb-1 text-dark">{activeModalPet.name}</h3>
+                      <h4 className="fw-bold mb-1 text-dark">{activeModalPet.name}</h4>
                       <p className="text-primary fw-semibold small mb-3">📍 {activeModalPet.calculatedAddress || 'Координаты на карте'}</p>
                       
                       <hr className="my-2" />
@@ -1178,7 +1204,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* КЛИКАБЕЛЬНЫЙ БЛОК СВЯЗИ С АВТОРОМ */}
                 <div 
                   className="p-3 rounded-4 border border-light shadow-sm mt-4"
                   style={{ 
@@ -1204,25 +1229,16 @@ export default function App() {
                   }}
                 >
                   <h6 className="fw-bold text-muted small text-uppercase mb-2">👤 Карточка владельца (Профиль ➔)</h6>
-                  
-                  <p className="mb-1 text-dark small">
-                    Автор: <strong className="text-primary">{modalOwnerName}</strong>
-                  </p>
-                  
-                  <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>
-                    📋 Нажмите на этот блок, чтобы открыть подробный профиль и связаться через мессенджеры.
-                  </p>
+                  <p className="mb-1 text-dark small">Автор: <strong className="text-primary">{modalOwnerName}</strong></p>
+                  <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>📋 Нажмите на этот блок, чтобы открыть подробный профиль и связаться через мессенджеры.</p>
                   
                   <div className="d-flex gap-2">
-                    {/* Кнопка прямого звонка сработает, только если в стейте загрузился телефон от бэкенда */}
                     <button 
                       type="button" 
                       className="btn btn-success btn-sm fw-bold w-50 py-2"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (activeModalPet.userId) {
-                          openOwnerProfile(activeModalPet.userId);
-                        }
+                        if (activeModalPet.userId) openOwnerProfile(activeModalPet.userId);
                       }}
                     >
                       📞 Посмотреть телефон
@@ -1242,7 +1258,6 @@ export default function App() {
 
               </div>
               
-              {/* Футер модалки */}
               <div className="modal-footer bg-light border-0 p-3">
                 <button type="button" className="btn btn-secondary btn-sm px-4 rounded-3" onClick={() => { setActiveModalPet(null); setIsPulseActive(false); }}>
                   Закрыть
@@ -1256,5 +1271,3 @@ export default function App() {
     </div>
   );
 }
-
-export default App;
