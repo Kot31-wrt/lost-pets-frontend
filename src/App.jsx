@@ -291,19 +291,32 @@ export default function App() {
 
   const safeOwnerAds = Array.isArray(ownerAds) ? ownerAds : [];
 
-  const handleDelete = (petId) => {
-    if (window.confirm('Вы уверены, что хотите удалить это объявление?')) {
-      fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${petId}`, { method: 'DELETE' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert('Объявление успешно удалено!');
-          setUserPets(prevUserPets => 
-            Array.isArray(prevUserPets) ? prevUserPets.filter(pet => pet._id !== petId) : []
-          );
+  const handleDeletePet = async (petId) => {
+    if (!window.confirm('Вы уверены, что хотите удалить это объявление?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${petId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
-      })
-      .catch(err => console.error(err));
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Обновляем список питомцев в стейте, убирая удаленного
+        setUserPets(prevPets => prevPets.filter(pet => pet._id !== petId));
+        setPets(prevPets => prevPets.filter(pet => pet._id !== petId));
+      } else {
+        alert(data.message || 'Не удалось удалить объявление');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении объявления:', error);
+      alert('Произошла ошибка при соединении с сервером');
     }
   };
 
