@@ -1022,7 +1022,26 @@ export default function App() {
                           onDelete={handleDeletePet} 
                           onEdit={() => handleEditPet(pet)}
                           currentUserId={user.id || user._id}
-                          setActiveModalPet={setActiveModalPet} 
+                          onOpenDetails={(p, addr) => {
+                            setActiveModalPet({ ...p, calculatedAddress: addr });
+                            setModalOwnerName('Загрузка...');
+                            if (p && p.userId) {
+                              fetch(`https://lost-pets-api-gkoe.onrender.com/api/users/${p.userId}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                  if (data.success && data.user && data.user.name) {
+                                    setModalOwnerName(data.user.name);
+                                  } else {
+                                    setModalOwnerName(`Пользователь #${String(p.userId).substring(0, 6)}`);
+                                  }
+                                })
+                                .catch(() => {
+                                  setModalOwnerName(`Пользователь #${String(p.userId).substring(0, 6)}`);
+                                });
+                            } else {
+                              setModalOwnerName('Неизвестный автор');
+                            }
+                          }}
                         />
                       </div>
                     ))}
