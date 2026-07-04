@@ -1533,7 +1533,7 @@ export default function App() {
             <Form onSubmit={async (e) => {
               e.preventDefault();
               console.log("ID для запроса:", editingPet ? editingPet._id : "ОШИБКА: editingPet пустой!");
-              
+
               const payload = { 
                 name, 
                 breed, 
@@ -1544,6 +1544,7 @@ export default function App() {
                 lng: parseFloat(lng)  // Принудительно в число
               };
               console.log("Отправляю данные:", payload);
+              console.log("Полный URL запроса:", `https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`);
               const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
                 method: 'PUT',
                 headers: { 
