@@ -175,6 +175,27 @@ export default function App() {
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
 
+  useEffect(() => {
+    if (editingPet) {
+      setName(editingPet.name || '');
+      setBreed(editingPet.breed || '');
+      setDescription(editingPet.description || '');
+      setStatus(editingPet.status || 'потерялся');
+      setImage(editingPet.image || '');
+      setLat(editingPet.lat || '');
+      setLng(editingPet.lng || '');
+    } else {
+      // Если editingPet null (режим создания), очищаем форму
+      setName('');
+      setBreed('');
+      setDescription('');
+      setStatus('потерялся');
+      setImage('');
+      setLat('');
+      setLng('');
+    }
+  }, [editingPet]); // Сработает автоматически, как только setEditingPet получит данные
+
   // Синхронизация профиля при обновлении данных пользователя
   useEffect(() => {
     if (user) {
@@ -342,22 +363,9 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
-    console.log('Данные питомца, которые пришли в функцию:', pet);
-    // Заполняем стейты формы данными выбранного питомца
-    setName(pet.name);
-    setBreed(pet.breed);
-    setDescription(pet.description);
-    setStatus(pet.status);
-    setImage(pet.image);
-    setLat(pet.lat);
-    setLng(pet.lng);
-    
-    // Сохраняем ID питомца, которого редактируем
-    setEditingPet(pet); // Убедись, что этот стейт добавлен
-    
-    // Переключаем страницу на форму
-    setPage('add-pet');
-  };
+  setEditingPet(pet); // триггерит useEffect выше
+  setPage('add-pet');  // Переключаем страницу
+};
 
   const handleSendResetCode = () => {
     setAuthError('');
@@ -565,7 +573,7 @@ export default function App() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <Nav.Link active={page === 'map'} onClick={() => setPage('map')}>Карта и поиск</Nav.Link>
-              <Nav.Link active={page === 'add'} onClick={() => setPage('add')}>Добавить объявление</Nav.Link>
+              <Nav.Link active={page === 'add'} onClick={() => { setEditingPet(null); setPage('add'); }}>Добавить объявление</Nav.Link>
               <Nav.Link active={page === 'profile'} onClick={() => setPage('profile')}>Кабинет ({user?.name || 'Пользователь'})</Nav.Link>
             </Nav>
           </Navbar.Collapse>
