@@ -1291,6 +1291,15 @@ export default function App() {
                               >
                                 Удалить
                               </button>
+                              <button 
+                                className="btn btn-primary" 
+                                onClick={(e) => {
+                                  e.stopPropagation(); 
+                                  onOpenDetails(pet, address);
+                                }}
+                              >
+                                Подробнее ➔
+                              </button>
                             </div>
                           </div>
                         </div>
