@@ -385,9 +385,9 @@ export default function App() {
   };
 
   const handleEditPet = (pet) => {
-    console.log('Редактируем питомца:', pet);
-    setEditingPet(pet); // Это вызовет useEffect, описанный выше
-    setPage('add-pet');  // Переход на форму
+    setEditingPet(pet);
+    setIsEditModalOpen(true);
+    setActiveModalPet(null); // Закрываем анкету при открытии редактирования
   };
 
   const handleSendResetCode = () => {
