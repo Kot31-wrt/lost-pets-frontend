@@ -1584,10 +1584,16 @@ export default function App() {
                 const result = await res.json();
                 if (result.success) {
                   alert('Сохранено!');
+                  // 1. Закрываем модальное окно
                   setIsEditModalOpen(false);
-                  window.location.reload(); 
-                } else {
-                  alert('Ошибка: ' + result.message);
+                  // 2. Обновляем список питомцев в памяти, чтобы изменения отобразились сразу
+                  // находим старого питомца и заменяем его новым из ответа сервера
+                  setPets(prevPets => prevPets.map(p => 
+                    p._id === editingPet._id ? { ...p, ...payload } : p
+                  ));
+                  setUserPets(prevUserPets => prevUserPets.map(p => 
+                    p._id === editingPet._id ? { ...p, ...payload } : p
+                  ));
                 }
               }}>
                 <Form.Group className="mb-3">
@@ -1608,8 +1614,8 @@ export default function App() {
                 <Form.Group className="mb-3">
                   <Form.Label>Статус</Form.Label>
                   <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="потерялся">Потерялся</option>
-                    <option value="найден">Найден</option>
+                    <option value="потерялся">💔 Потерялся</option>
+                    <option value="найден">💚 Найден</option>
                   </Form.Select>
                 </Form.Group>
 
