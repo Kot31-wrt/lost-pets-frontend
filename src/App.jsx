@@ -1536,12 +1536,12 @@ export default function App() {
                 name, 
                 breed, 
                 description, 
-                status, // Теперь это поле будет передаваться
-                image,  // Теперь это поле будет передаваться
-                lat, 
-                lng 
+                status, 
+                image, 
+                lat: parseFloat(lat), // Принудительно в число
+                lng: parseFloat(lng)  // Принудительно в число
               };
-
+              console.log("Отправляю данные:", payload);
               const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
                 method: 'PUT',
                 headers: { 
@@ -1552,6 +1552,7 @@ export default function App() {
               });
               
               const result = await res.json();
+              console.log("Ответ сервера:", result);
               if (result.success) {
                 alert('Сохранено!');
                 setIsEditModalOpen(false);
