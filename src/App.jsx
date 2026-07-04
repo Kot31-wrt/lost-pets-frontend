@@ -1521,85 +1521,106 @@ export default function App() {
         </div>
       )}
       {isEditModalOpen && (
-        <div className="modal-backdrop show" style={{ 
-          backgroundColor: 'rgba(0,0,0,0.8)', 
-          position: 'fixed', 
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', 
-          zIndex: 9999 
-        }}>
-          <div className="bg-white p-4 rounded-4 shadow-lg" style={{ width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 className="mb-4">Редактирование</h3>
-            <Form onSubmit={async (e) => {
-              e.preventDefault();
-              console.log("ID для запроса:", editingPet ? editingPet._id : "ОШИБКА: editingPet пустой!");
+        <>
+          {/* 1. Темный фон (подложка) */}
+          <div 
+            className="modal-backdrop show" 
+            style={{ 
+              position: 'fixed', 
+              top: 0, 
+              left: 0, 
+              width: '100vw', 
+              height: '100vh', 
+              backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+              zIndex: 9998 
+            }} 
+          />
 
-              const payload = { 
-                name, 
-                breed, 
-                description, 
-                status, 
-                image, 
-                lat: parseFloat(lat), // Принудительно в число
-                lng: parseFloat(lng)  // Принудительно в число
-              };
-              console.log("Отправляю данные:", payload);
-              console.log("Полный URL запроса:", `https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`);
-              const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
-                method: 'PUT',
-                headers: { 
-                  'Content-Type': 'application/json', 
-                  'Authorization': `Bearer ${localStorage.getItem('token')}` 
-                },
-                body: JSON.stringify(payload)
-              });
-              
-              const result = await res.json();
-              console.log("Ответ сервера:", result);
-              if (result.success) {
-                alert('Сохранено!');
-                setIsEditModalOpen(false);
-                window.location.reload(); 
-              } else {
-                alert('Ошибка: ' + result.message);
-              }
-            }}>
+          {/* 2. Контейнер для центрирования окна */}
+          <div 
+            style={{ 
+              position: 'fixed', 
+              top: 0, 
+              left: 0, 
+              width: '100vw', 
+              height: '100vh', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              zIndex: 9999, 
+              pointerEvents: 'none' 
+            }}
+          >
+            {/* 3. Само окно (непрозрачное) */}
+            <div 
+              className="bg-white p-4 rounded-4 shadow-lg" 
+              style={{ 
+                width: '90%', 
+                maxWidth: '500px', 
+                maxHeight: '90vh', 
+                overflowY: 'auto',
+                pointerEvents: 'auto', 
+                opacity: 1 
+              }}
+            >
+              <h3 className="mb-4">Редактирование</h3>
+              <Form onSubmit={async (e) => {
+                e.preventDefault();
+                const payload = { 
+                  name, breed, description, status, image, 
+                  lat: parseFloat(lat), 
+                  lng: parseFloat(lng) 
+                };
 
-              {/* 1. Кличка */}
-              <Form.Group className="mb-3">
-                <Form.Label>Кличка</Form.Label>
-                <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
-              </Form.Group>
+                const res = await fetch(`https://lost-pets-api-gkoe.onrender.com/api/pets/${editingPet._id}`, {
+                  method: 'PUT',
+                  headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                  },
+                  body: JSON.stringify(payload)
+                });
+                
+                const result = await res.json();
+                if (result.success) {
+                  alert('Сохранено!');
+                  setIsEditModalOpen(false);
+                  window.location.reload(); 
+                } else {
+                  alert('Ошибка: ' + result.message);
+                }
+              }}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Кличка</Form.Label>
+                  <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
+                </Form.Group>
 
-              {/* 2. Порода */}
-              <Form.Group className="mb-3">
-                <Form.Label>Порода</Form.Label>
-                <Form.Control value={breed} onChange={(e) => setBreed(e.target.value)} />
-              </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Порода</Form.Label>
+                  <Form.Control value={breed} onChange={(e) => setBreed(e.target.value)} />
+                </Form.Group>
 
-              {/* 3. Описание */}
-              <Form.Group className="mb-3">
-                <Form.Label>Описание</Form.Label>
-                <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
-              </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Описание</Form.Label>
+                  <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+                </Form.Group>
 
-              {/* 4. Статус (Выпадающий список) */}
-              <Form.Group className="mb-3">
-                <Form.Label>Статус</Form.Label>
-                <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                  <option value="потерялся">Потерялся</option>
-                  <option value="найден">Найден</option>
-                </Form.Select>
-              </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Статус</Form.Label>
+                  <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="потерялся">Потерялся</option>
+                    <option value="найден">Найден</option>
+                  </Form.Select>
+                </Form.Group>
 
-              {/* Кнопки */}
-              <div className="d-flex gap-2">
-                <Button variant="secondary" onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
-                <Button variant="primary" type="submit">Сохранить</Button>
-              </div>
-            </Form>
+                <div className="d-flex gap-2">
+                  <Button variant="secondary" onClick={() => setIsEditModalOpen(false)}>Отмена</Button>
+                  <Button variant="primary" type="submit">Сохранить</Button>
+                </div>
+              </Form>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
